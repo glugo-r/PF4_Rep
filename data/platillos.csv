@@ -1,0 +1,4 @@
+id,nombre,descripcion,precio,tiempoPreparacion,categoria
+1,Pasta Alfredo,Pasta con salsa de crema y pollo,14.99,20,Principal
+2,Sopa del día,Sopa casera,6.99,5,Entrada
+3,Postre de chocolate,Pastel de chocolate con helado,7.99,8,Postre
