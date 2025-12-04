@@ -228,13 +228,13 @@ private static void gestionarTareasSudo() {
     }
     
     if (idUsuario == 1) {
-        System.out.println("❌ No se puede eliminar al usuario Sudo (ID: 1).");
+        System.out.println("No se puede eliminar al usuario Sudo (ID: 1).");
         return;
     }
     
     Usuario usuario = sistema.buscarUsuarioPorId(idUsuario);
     if (usuario == null) {
-        System.out.println("❌ Usuario no encontrado.");
+        System.out.println("Usuario no encontrado.");
         return;
     }
     
@@ -246,11 +246,111 @@ private static void gestionarTareasSudo() {
     
     if (confirmacion.equals("s") || confirmacion.equals("si")) {
         sistema.eliminarUsuario(idUsuario);
-        System.out.println("✅ Usuario eliminado exitosamente.");
+        System.out.println("Usuario eliminado exitosamente.");
     } else {
         System.out.println("Operación cancelada.");
     }
 }
+    
+    private static void eliminarOrdenSudo() {
+        System.out.println("\n=== ELIMINAR ORDEN ===");
+        
+        // Mostrar todas las órdenes
+        List<Orden> todasLasOrdenes = sistema.getOrdenes();
+        
+        if (todasLasOrdenes.isEmpty()) {
+            System.out.println("No hay órdenes registradas en el sistema.");
+            return;
+        }
+        
+        System.out.println("Lista de todas las órdenes:");
+        System.out.println("===========================");
+        
+        for (Orden orden : todasLasOrdenes) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Mesero: " + orden.getMesero().getNombre());
+            System.out.println("Fecha: " + orden.getFecha());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.isEntregada() ? "✅ ENTREGADA" : "🔄 ACTIVA"));
+            System.out.println("Lista: " + (orden.estaLista() ? "✅ SÍ" : "❌ NO"));
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de la orden a eliminar (0 para cancelar): ");
+        int idOrden = leerEntero();
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Buscar la orden
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null) {
+            System.out.println("Orden no encontrada.");
+            return;
+        }
+        
+        // Mostrar detalles completos de la orden
+        System.out.println("\n=== DETALLES DE LA ORDEN A ELIMINAR ===");
+        orden.mostrarOrden();
+        
+        // Preguntar motivo
+        System.out.println("\nADVERTENCIA: Esta acción no se puede deshacer");
+        System.out.println("Motivos comunes para eliminar órdenes:");
+        System.out.println("1. Error al tomar la orden");
+        System.out.println("2. Cliente canceló el pedido");
+        System.out.println("3. Problema con el pago");
+        System.out.println("4. Otra razón");
+        
+        System.out.print("\nSeleccione motivo (1-4): ");
+        int motivo = leerEntero();
+        
+        String[] motivos = {
+            "Error al tomar la orden",
+            "Cliente canceló el pedido", 
+            "Problema con el pago",
+            "Otra razón"
+        };
+        
+        String motivoStr = (motivo >= 1 && motivo <= 4) ? motivos[motivo-1] : "No especificado";
+        
+        System.out.println("\nMotivo registrado: " + motivoStr);
+        System.out.print("\n¿Está SEGURO de eliminar esta orden? (escriba 'ELIMINAR' para confirmar): ");
+        String confirmacion = scanner.nextLine();
+        
+        if (!confirmacion.equalsIgnoreCase("ELIMINAR")) {
+            System.out.println("Eliminación cancelada. La orden NO fue eliminada.");
+            return;
+        }
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println("Orden eliminada exitosamente.");
+            
+            // Registrar la eliminación en un log
+            registrarLogEliminacionOrden(idOrden, motivoStr, sistema.getUsuarioActual().getNombre());
+        }
+    }
+
+    private static void registrarLogEliminacionOrden(int idOrden, String motivo, String usuario) {
+        try {
+            java.io.FileWriter writer = new java.io.FileWriter("data/log_eliminaciones.csv", true);
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String fecha = sdf.format(new java.util.Date());
+            
+            writer.write(fecha + "," + idOrden + "," + motivo + "," + usuario + "\n");
+            writer.close();
+        } catch (Exception e) {
+            System.out.println("⚠Error al registrar log de eliminación: " + e.getMessage());
+        }
+    }
+
+
     
     private static boolean mostrarMenuAdministrador(Administrador admin) {
     System.out.println("\n=== MENÚ ADMINISTRADOR ===");
@@ -261,8 +361,9 @@ private static void gestionarTareasSudo() {
     System.out.println("5. Listar empleados");
     System.out.println("6. Agregar nuevo empleado");
     System.out.println("7. Eliminar empleado");
-    System.out.println("8. Ver mi información");
-    System.out.println("9. Cerrar sesión");
+    System.out.println("8. Eliminar orden");
+    System.out.println("9. Ver mi información");
+    System.out.println("10. Cerrar sesión");
     System.out.print("Seleccione opción: ");
     
     int opcion = leerEntero();
@@ -304,11 +405,16 @@ private static void gestionarTareasSudo() {
             scanner.nextLine();
             return false;
         case 8:
-            admin.mostrarInfo(false);
+            eliminarOrdenAdministrador(admin);
             System.out.println("\nPresione Enter para continuar...");
             scanner.nextLine();
             return false;
         case 9:
+            admin.mostrarInfo(false);
+            System.out.println("\nPresione Enter para continuar...");
+            scanner.nextLine();
+            return false;
+        case 10:
             sistema.setUsuarioActual(null);
             System.out.println("Sesión cerrada correctamente.");
             return true;
@@ -320,104 +426,6 @@ private static void gestionarTareasSudo() {
     }
 }
     
-    private static void eliminarOrdenSudo() {
-        System.out.println("\n=== ELIMINAR ORDEN ===");
-        
-        // Mostrar todas las órdenes
-        List<Orden> todasLasOrdenes = sistema.getOrdenes();
-        
-        if (todasLasOrdenes.isEmpty()) {
-            System.out.println("No hay órdenes registradas en el sistema.");
-            return;
-        }
-        
-        System.out.println("Lista de todas las órdenes:");
-        System.out.println("===========================");
-        
-        for (Orden orden : todasLasOrdenes) {
-            System.out.println("\n[Orden #" + orden.getId() + "]");
-            System.out.println("Mesa: " + orden.getMesa().getNumero());
-            System.out.println("Mesero: " + orden.getMesero().getNombre());
-            System.out.println("Fecha: " + orden.getFecha());
-            System.out.println("Total: $" + orden.getTotal());
-            System.out.println("Estado: " + (orden.isEntregada() ? "✅ ENTREGADA" : "🔄 ACTIVA"));
-            System.out.println("Lista: " + (orden.estaLista() ? "✅ SÍ" : "❌ NO"));
-            System.out.println("-------------------");
-        }
-        
-        System.out.print("\nID de la orden a eliminar (0 para cancelar): ");
-        int idOrden = leerEntero();
-        
-        if (idOrden == 0) {
-            System.out.println("Operación cancelada.");
-            return;
-        }
-        
-        // Buscar la orden
-        Orden orden = sistema.buscarOrdenPorId(idOrden);
-        
-        if (orden == null) {
-            System.out.println("❌ Orden no encontrada.");
-            return;
-        }
-        
-        // Mostrar detalles completos de la orden
-        System.out.println("\n=== DETALLES DE LA ORDEN A ELIMINAR ===");
-        orden.mostrarOrden();
-        
-        // Preguntar motivo
-        System.out.println("\n⚠️  ⚠️  ⚠️  ADVERTENCIA: Esta acción no se puede deshacer ⚠️  ⚠️  ⚠️");
-        System.out.println("Motivos comunes para eliminar órdenes:");
-        System.out.println("1. Error al tomar la orden");
-        System.out.println("2. Cliente canceló el pedido");
-        System.out.println("3. Problema con el pago");
-        System.out.println("4. Otra razón");
-        
-        System.out.print("\nSeleccione motivo (1-4): ");
-        int motivo = leerEntero();
-        
-        String[] motivos = {
-            "Error al tomar la orden",
-            "Cliente canceló el pedido", 
-            "Problema con el pago",
-            "Otra razón"
-        };
-        
-        String motivoStr = (motivo >= 1 && motivo <= 4) ? motivos[motivo-1] : "No especificado";
-        
-        System.out.println("\nMotivo registrado: " + motivoStr);
-        System.out.print("\n¿Está SEGURO de eliminar esta orden? (escriba 'ELIMINAR' para confirmar): ");
-        String confirmacion = scanner.nextLine();
-        
-        if (!confirmacion.equalsIgnoreCase("ELIMINAR")) {
-            System.out.println("❌ Eliminación cancelada. La orden NO fue eliminada.");
-            return;
-        }
-        
-        // Eliminar la orden
-        boolean eliminada = sistema.eliminarOrden(idOrden);
-        
-        if (eliminada) {
-            System.out.println("✅ Orden eliminada exitosamente.");
-            
-            // Registrar la eliminación en un log
-            registrarLogEliminacionOrden(idOrden, motivoStr, sistema.getUsuarioActual().getNombre());
-        }
-    }
-
-    private static void registrarLogEliminacionOrden(int idOrden, String motivo, String usuario) {
-        try {
-            java.io.FileWriter writer = new java.io.FileWriter("data/log_eliminaciones.csv", true);
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String fecha = sdf.format(new java.util.Date());
-            
-            writer.write(fecha + "," + idOrden + "," + motivo + "," + usuario + "\n");
-            writer.close();
-        } catch (Exception e) {
-            System.out.println("⚠️  Error al registrar log de eliminación: " + e.getMessage());
-        }
-    }
-
     private static void eliminarEmpleadoAdministrador(Administrador admin) {
     System.out.println("\n=== ELIMINAR EMPLEADO ===");
     
@@ -460,7 +468,7 @@ private static void gestionarTareasSudo() {
     }
     
     if (!(usuario instanceof Empleado)) {
-        System.out.println("❌ El usuario seleccionado no es un empleado.");
+        System.out.println("El usuario seleccionado no es un empleado.");
         return;
     }
     
@@ -472,7 +480,7 @@ private static void gestionarTareasSudo() {
     
     if (confirmacion.equals("s") || confirmacion.equals("si")) {
         sistema.eliminarUsuario(idEmpleado);
-        System.out.println("✅ Empleado eliminado exitosamente.");
+        System.out.println("Empleado eliminado exitosamente.");
     } else {
         System.out.println("Operación cancelada.");
     }
@@ -527,6 +535,86 @@ private static void gestionarTareasSudo() {
                 System.out.println("\nPresione Enter para continuar...");
                 scanner.nextLine();
                 return false;
+        }
+    }
+    
+    private static void eliminarOrdenAdministrador(Administrador admin) {
+        System.out.println("\n=== ELIMINAR ORDEN (ADMINISTRADOR) ===");
+        
+        // Mostrar solo órdenes activas (no entregadas)
+        List<Orden> ordenesActivas = sistema.getOrdenes().stream()
+            .filter(o -> !o.isEntregada())
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (ordenesActivas.isEmpty()) {
+            System.out.println("No hay órdenes activas para eliminar.");
+            return;
+        }
+        
+        System.out.println("Órdenes activas (no entregadas):");
+        System.out.println("=================================");
+        
+        for (Orden orden : ordenesActivas) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Mesero: " + orden.getMesero().getNombre());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.estaLista() ? "✅ LISTA" : "🔄 EN PREPARACIÓN"));
+            System.out.println("Progreso: " + orden.getCantidadPlatillosListos() + "/" + 
+                             orden.getTotalPlatillos() + " platillos listos");
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de la orden a eliminar (0 para cancelar): ");
+        int idOrden = leerEntero();
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Verificar que la orden exista y no esté entregada
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null) {
+            System.out.println("❌ Orden no encontrada.");
+            return;
+        }
+        
+        if (orden.isEntregada()) {
+            System.out.println("❌ No tiene permisos para eliminar órdenes ya entregadas.");
+            System.out.println("   Solo el Sudo puede eliminar órdenes entregadas.");
+            return;
+        }
+        
+        // Mostrar detalles
+        System.out.println("\n=== DETALLES DE LA ORDEN ===");
+        orden.mostrarOrden();
+        
+        System.out.print("\n¿Está seguro de eliminar esta orden? (s/n): ");
+        String respuesta = scanner.nextLine().toLowerCase();
+        
+        if (!respuesta.equals("s") && !respuesta.equals("si")) {
+            System.out.println("❌ Eliminación cancelada.");
+            return;
+        }
+        
+        // Preguntar motivo breve
+        System.out.print("Motivo breve de eliminación: ");
+        String motivo = scanner.nextLine();
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println("✅ Orden eliminada exitosamente.");
+            
+            // Registrar log
+            registrarLogEliminacionOrden(idOrden, "Admin: " + motivo, admin.getNombre());
+            
+            // Notificar al mesero si es posible
+            System.out.println("📢 Informar al mesero " + orden.getMesero().getNombre() + 
+                             " sobre la eliminación de la orden #" + idOrden);
         }
     }
     
