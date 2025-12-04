@@ -624,11 +624,12 @@ private static void gestionarTareasSudo() {
     System.out.println("1. Tomar pedido");
     System.out.println("2. Ver mis órdenes");
     System.out.println("3. Modificar orden");
-    System.out.println("4. Entregar pedido");
-    System.out.println("5. Ver mesas disponibles");
-    System.out.println("6. Ver mis tareas");
-    System.out.println("7. Ver mi información");
-    System.out.println("8. Cerrar sesión");
+    System.out.println("4. Eliminar mi orden");
+    System.out.println("5. Entregar pedido");
+    System.out.println("6. Ver mesas disponibles");
+    System.out.println("7. Ver mis tareas");
+    System.out.println("8. Ver mi información");
+    System.out.println("9. Cerrar sesión");
     System.out.print("Seleccione opción: ");
     
     int opcion = leerEntero();
@@ -650,26 +651,31 @@ private static void gestionarTareasSudo() {
             scanner.nextLine();
             return false;
         case 4:
-            entregarPedido(mesero);
+            eliminarOrdenMesero(mesero);
             System.out.println("\nPresione Enter para continuar...");
             scanner.nextLine();
             return false;
         case 5:
-            verMesasDisponibles();
+            entregarPedido(mesero);
             System.out.println("\nPresione Enter para continuar...");
             scanner.nextLine();
             return false;
         case 6:
-            mesero.consultarTareas();
+            verMesasDisponibles();
             System.out.println("\nPresione Enter para continuar...");
             scanner.nextLine();
             return false;
         case 7:
-            mesero.mostrarInfo(false);
+            mesero.consultarTareas();
             System.out.println("\nPresione Enter para continuar...");
             scanner.nextLine();
             return false;
         case 8:
+            mesero.mostrarInfo(false);
+            System.out.println("\nPresione Enter para continuar...");
+            scanner.nextLine();
+            return false;
+        case 9:
             sistema.setUsuarioActual(null);
             System.out.println("Sesión cerrada correctamente.");
             return true;
@@ -680,6 +686,88 @@ private static void gestionarTareasSudo() {
             return false;
     }
 }
+    
+    private static void eliminarOrdenMesero(Mesero mesero) {
+        System.out.println("\n=== ELIMINAR MI ORDEN ===");
+        
+        // Mostrar solo órdenes de este mesero que no estén entregadas
+        List<Orden> ordenesMesero = sistema.getOrdenes().stream()
+            .filter(o -> o.getMesero().getId() == mesero.getId() && !o.isEntregada())
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (ordenesMesero.isEmpty()) {
+            System.out.println("No tienes órdenes activas para eliminar.");
+            return;
+        }
+        
+        System.out.println("Tus órdenes activas:");
+        for (Orden orden : ordenesMesero) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.estaLista() ? "✅ LISTA" : "🔄 EN PREPARACIÓN"));
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de tu orden a eliminar (0 para cancelar): ");
+        int idOrden = leerEntero();
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Verificar que la orden pertenezca a este mesero
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null || orden.getMesero().getId() != mesero.getId()) {
+            System.out.println("❌ Esta orden no existe o no te pertenece.");
+            return;
+        }
+        
+        if (orden.isEntregada()) {
+            System.out.println("❌ No puedes eliminar una orden ya entregada.");
+            System.out.println("   Contacta a un administrador si hay un problema.");
+            return;
+        }
+        
+        // Verificar si hay platillos ya preparados
+        if (orden.getCantidadPlatillosListos() > 0) {
+            System.out.println("⚠️  Advertencia: Hay " + orden.getCantidadPlatillosListos() + 
+                             " platillo(s) ya preparados.");
+            System.out.print("¿Está seguro de continuar? (s/n): ");
+            String respuesta = scanner.nextLine().toLowerCase();
+            
+            if (!respuesta.equals("s") && !respuesta.equals("si")) {
+                System.out.println("❌ Eliminación cancelada.");
+                return;
+            }
+            
+            System.out.println("📢 Informar al cocinero sobre los platillos preparados que se descartarán.");
+        }
+        
+        System.out.print("Motivo breve (ej: cliente canceló, error en pedido): ");
+        String motivo = scanner.nextLine();
+        
+        // Confirmación final
+        System.out.print("\n¿CONFIRMAR eliminación de la orden #" + idOrden + "? (s/n): ");
+        String confirmacion = scanner.nextLine().toLowerCase();
+        
+        if (!confirmacion.equals("s") && !confirmacion.equals("si")) {
+            System.out.println("❌ Eliminación cancelada.");
+            return;
+        }
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println("✅ Tu orden ha sido eliminada exitosamente.");
+            
+            // Registrar log
+            registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, mesero.getNombre());
+        }
+    }
     
     private static void crearNuevoUsuario() {
     System.out.println("\n=== CREAR NUEVO USUARIO ===");
