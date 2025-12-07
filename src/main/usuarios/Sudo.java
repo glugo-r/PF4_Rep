@@ -3,6 +3,7 @@ package usuarios;
 import utilidades.EntradaUtils;
 import servicios.GestorUsuarios;
 import servicios.GestorLogs;
+import servicios.GestorTareas;
 
 import java.util.List;
 import java.util.Scanner;
@@ -119,7 +120,8 @@ public class Sudo extends Usuario
                 sistema.listarTareas();
                 break;
             case 2:
-                eliminarTarea();
+            	GestorTareas gestorTareas = new GestorTareas(sistema, scanner);
+            	gestorTareas.eliminarTarea();
                 break;
             default:
                 System.out.println("Opción inválida");
