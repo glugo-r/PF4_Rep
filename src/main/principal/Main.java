@@ -321,37 +321,6 @@ public class Main {
     
    
     
-    private static void agregarNuevoEmpleado() {
-    System.out.println("Tipo de empleado:");
-    System.out.println("1. Cocinero");
-    System.out.println("2. Mesero");
-    System.out.print("Seleccione: ");
-    
-    int tipo = leerEntero();
-    
-    System.out.print("Nombre: ");
-    String nombre = scanner.nextLine();
-    
-    System.out.print("Email (debe terminar en .com): ");
-    String email = scanner.nextLine();
-    
-    System.out.print("Contraseña: ");
-    String password = scanner.nextLine();
-    
-    try {
-        if (tipo == 1) {
-            sistema.agregarUsuario(new Cocinero(nombre, email, password));
-            System.out.println(" Cocinero agregado exitosamente");
-        } else if (tipo == 2) {
-            sistema.agregarUsuario(new Mesero(nombre, email, password));
-            System.out.println(" Mesero agregado exitosamente");
-        } else {
-            System.out.println(" Opción inválida");
-        }
-    } catch (EmailInvalidoException | NombreInvalidoException e) {
-        System.out.println(" Error: " + e.getMessage());
-    }
-}
     
     private static void tomarPedido(Mesero mesero) {
     verMesasDisponibles();
