@@ -68,7 +68,7 @@ public class ItemOrden {
         }
     }
     
-    // SOLO UN setCantidadLista - elimina el duplicado
+    
     public void setCantidadLista(int cantidadLista) {
         if (cantidadLista >= 0 && cantidadLista <= cantidad) {
             this.cantidadLista = cantidadLista;
