@@ -111,12 +111,12 @@ public class Mesero extends Empleado
 	            scanner.nextLine();
 	            return false;
 	        case 7:
-	            mesero.consultarTareas();
+	            this.consultarTareas();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
 	        case 8:
-	            mesero.mostrarInfo(false);
+	            this.mostrarInfo(false);
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
@@ -132,12 +132,13 @@ public class Mesero extends Empleado
 	    }
 	}
 
-    private void eliminarOrdenMesero(Mesero mesero) {
+    private void eliminarOrdenMesero() 
+    {
         System.out.println("\n=== ELIMINAR MI ORDEN ===");
         
         // Mostrar solo órdenes de este mesero que no estén entregadas
         List<Orden> ordenesMesero = sistema.getOrdenes().stream()
-            .filter(o -> o.getMesero().getId() == mesero.getId() && !o.isEntregada())
+            .filter(o -> o.getMesero().getId() == this.getId() && !o.isEntregada())
             .collect(java.util.stream.Collectors.toList());
         
         if (ordenesMesero.isEmpty()) {
@@ -165,7 +166,7 @@ public class Mesero extends Empleado
         // Verificar que la orden pertenezca a este mesero
         Orden orden = sistema.buscarOrdenPorId(idOrden);
         
-        if (orden == null || orden.getMesero().getId() != mesero.getId()) {
+        if (orden == null || orden.getMesero().getId() != this.getId()) {
             System.out.println(" Esta orden no existe o no te pertenece.");
             return;
         }
@@ -591,5 +592,105 @@ public class Mesero extends Empleado
         }
     }
 
+    private void modificarCantidadEnOrden(Orden orden) 
+    {
+        System.out.println("\n=== MODIFICAR CANTIDAD DE PLATILLO ===");
+        System.out.println("Platillos en la orden:");
+        
+        List<ItemOrden> items = orden.getItems();
+        if (items.isEmpty()) {
+            System.out.println("La orden no tiene platillos.");
+            return;
+        }
+        
+        int index = 1;
+        for (ItemOrden item : items) {
+            System.out.println(index + ". [ID: " + item.getPlatillo().getId() + "] " + 
+                             item.getPlatillo().getNombre() + 
+                             " - Cantidad actual: " + item.getCantidad() +
+                             " (" + item.getCantidadLista() + " listos)");
+            index++;
+        }
+        
+        System.out.print("\nNúmero del platillo a modificar (0 para cancelar): ");
+        int seleccion = EntradaUtils.leerEntero(scanner);
+        
+        if (seleccion == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        if (seleccion < 1 || seleccion > items.size()) {
+            System.out.println("Selección inválida.");
+            return;
+        }
+        
+        ItemOrden itemSeleccionado = items.get(seleccion - 1);
+        
+        System.out.println("\nPlatillo seleccionado: " + itemSeleccionado.getPlatillo().getNombre());
+        System.out.println("Cantidad actual: " + itemSeleccionado.getCantidad());
+        System.out.println("Listos actualmente: " + itemSeleccionado.getCantidadLista());
+        System.out.print("Nueva cantidad (0 para eliminar): ");
+        int nuevaCantidad = EntradaUtils.leerEntero(scanner);
+        
+        if (nuevaCantidad < 0) {
+            System.out.println("La cantidad no puede ser negativa.");
+            return;
+        }
+        
+        if (nuevaCantidad == itemSeleccionado.getCantidad()) {
+            System.out.println("La cantidad es la misma. No se realizaron cambios.");
+            return;
+        }
+        
+        if (nuevaCantidad == 0) {
+            // Eliminar el platillo
+            System.out.print("¿Eliminar este platillo de la orden? (s/n): ");
+            String confirmacion = scanner.nextLine().toLowerCase();
+            if (confirmacion.equals("s") || confirmacion.equals("si")) {
+                orden.eliminarPlatillo(itemSeleccionado.getPlatillo().getId());
+                System.out.println("Platillo eliminado.");
+            } else {
+                System.out.println("Operación cancelada.");
+            }
+            return;
+        }
+        
+        // Verificar si la nueva cantidad es menor que la cantidad ya lista
+        if (nuevaCantidad < itemSeleccionado.getCantidadLista()) {
+            System.out.println("Advertencia: La nueva cantidad (" + nuevaCantidad + 
+                             ") es menor que la cantidad ya lista (" + 
+                             itemSeleccionado.getCantidadLista() + ").");
+            System.out.println("   Los platillos listos se ajustarán a " + nuevaCantidad + ".");
+            
+            System.out.print("¿Continuar? (s/n): ");
+            String confirmacion = scanner.nextLine().toLowerCase();
+            if (!confirmacion.equals("s") && !confirmacion.equals("si")) {
+                System.out.println("Operación cancelada.");
+                return;
+            }
+        }
+        
+        // Modificar la cantidad
+        boolean modificado = orden.modificarCantidadPlatillo(
+            itemSeleccionado.getPlatillo().getId(), 
+            nuevaCantidad
+        );
+        
+        if (modificado) {
+            System.out.println("Cantidad modificada a " + nuevaCantidad + ".");
+            
+            // Actualizar referencia al item modificado
+            for (ItemOrden item : orden.getItems()) {
+                if (item.getPlatillo().getId() == itemSeleccionado.getPlatillo().getId()) {
+                    System.out.println("   Listos actualizados: " + item.getCantidadLista() + "/" + item.getCantidad());
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Error al modificar la cantidad.");
+        }
+    }
+    
     
 }
