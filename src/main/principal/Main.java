@@ -310,18 +310,7 @@ public class Main {
             registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, mesero.getNombre());
         }
     }
-    
-    
-    
 
-
-
-    
-    
-    
-   
-    
-    
     private static void tomarPedido(Mesero mesero) {
     verMesasDisponibles();
     System.out.print("Número de mesa: ");

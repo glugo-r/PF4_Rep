@@ -27,7 +27,7 @@ public class Sudo extends Usuario
     
     public Administrador crearAdministrador(String nombre, String email, String password) 
     {
-        return new Administrador(nombre, email, password);
+        return new Administrador(nombre, email, password, sistema, scanner);
     }
     
     public boolean mostrarMenu() 
