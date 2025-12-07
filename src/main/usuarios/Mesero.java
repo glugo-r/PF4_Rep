@@ -2,9 +2,17 @@ package usuarios;
 
 import java.util.ArrayList;
 import java.util.List;
-import restaurante.*;
+import java.util.Scanner;
 
-public class Mesero extends Empleado {
+import principal.SistemaTareas;
+import restaurante.*;
+import utilidades.EntradaUtils;
+
+public class Mesero extends Empleado 
+{
+	private SistemaTareas sistema;
+    private Scanner scanner;
+	
     private int mesasAtendidas;
     private List<Orden> ordenesActivas;
     
@@ -49,4 +57,75 @@ public class Mesero extends Empleado {
     public int getMesasAtendidas() {
         return mesasAtendidas;
     }
+    
+    public boolean mostrarMenu() 
+    {
+	    System.out.println("\n=== MENÚ MESERO ===");
+	    System.out.println("Bienvenido, " + mesero.getNombre());
+	    System.out.println("1. Tomar pedido");
+	    System.out.println("2. Ver mis órdenes");
+	    System.out.println("3. Modificar orden");
+	    System.out.println("4. Eliminar mi orden");
+	    System.out.println("5. Entregar pedido");
+	    System.out.println("6. Ver mesas disponibles");
+	    System.out.println("7. Ver mis tareas");
+	    System.out.println("8. Ver mi información");
+	    System.out.println("9. Cerrar sesión");
+	    System.out.print("Seleccione opción: ");
+	    
+	    int opcion = EntradaUtils.leerEntero(scanner);
+	    
+	    switch (opcion) {
+	        case 1:
+	            tomarPedido(mesero);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 2:
+	            verOrdenesMesero(mesero);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 3:
+	            modificarOrden(mesero);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 4:
+	            eliminarOrdenMesero(mesero);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 5:
+	            entregarPedido(mesero);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 6:
+	            verMesasDisponibles();
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 7:
+	            mesero.consultarTareas();
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 8:
+	            mesero.mostrarInfo(false);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	        case 9:
+	            sistema.setUsuarioActual(null);
+	            System.out.println("Sesión cerrada correctamente.");
+	            return true;
+	        default:
+	            System.out.println("Opción inválida");
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
+	            return false;
+	    }
+	}
+
 }
