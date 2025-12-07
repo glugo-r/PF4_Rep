@@ -105,42 +105,6 @@ public class Main {
         }
     }
     
-    private static void eliminarUsuarioSudo() {
-    System.out.println("\n=== ELIMINAR USUARIO ===");
-    sistema.listarUsuarios(false);
-    
-    System.out.print("\nID del usuario a eliminar (0 para cancelar): ");
-    int idUsuario = leerEntero();
-    
-    if (idUsuario == 0) {
-        System.out.println("Operación cancelada.");
-        return;
-    }
-    
-    if (idUsuario == 1) {
-        System.out.println("No se puede eliminar al usuario Sudo (ID: 1).");
-        return;
-    }
-    
-    Usuario usuario = sistema.buscarUsuarioPorId(idUsuario);
-    if (usuario == null) {
-        System.out.println("Usuario no encontrado.");
-        return;
-    }
-    
-    System.out.println("Usuario a eliminar:");
-    usuario.mostrarInfo(false);
-    
-    System.out.print("\n¿Está seguro de eliminar este usuario? (s/n): ");
-    String confirmacion = scanner.nextLine().toLowerCase();
-    
-    if (confirmacion.equals("s") || confirmacion.equals("si")) {
-        sistema.eliminarUsuario(idUsuario);
-        System.out.println("Usuario eliminado exitosamente.");
-    } else {
-        System.out.println("Operación cancelada.");
-    }
-}
     
     private static void eliminarOrdenSudo() {
         System.out.println("\n=== ELIMINAR ORDEN ===");
