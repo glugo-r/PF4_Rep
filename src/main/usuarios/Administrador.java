@@ -1,12 +1,15 @@
 package usuarios;
 
 import utilidades.EntradaUtils;
+import servicios.GestorLogs;
 
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
 import principal.SistemaTareas;
+import restaurante.Orden;
 import tareas.Tarea;
 
 public class Administrador extends Usuario 
@@ -67,7 +70,7 @@ public class Administrador extends Usuario
 	    
 	    switch (opcion) {
 	        case 1:
-	            crearTarea(admin);
+	            crearTarea();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
@@ -102,7 +105,7 @@ public class Administrador extends Usuario
 	            scanner.nextLine();
 	            return false;
 	        case 8:
-	            eliminarOrdenAdministrador(admin);
+	            eliminarOrdenAdministrador();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
@@ -184,4 +187,194 @@ public class Administrador extends Usuario
 	    }
 	}
     
+    private void eliminarOrdenAdministrador() 
+    {
+        System.out.println("\n=== ELIMINAR ORDEN (ADMINISTRADOR) ===");
+        
+        // Mostrar solo órdenes activas (no entregadas)
+        List<Orden> ordenesActivas = sistema.getOrdenes().stream()
+            .filter(o -> !o.isEntregada())
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (ordenesActivas.isEmpty()) {
+            System.out.println("No hay órdenes activas para eliminar.");
+            return;
+        }
+        
+        System.out.println("Órdenes activas (no entregadas):");
+        System.out.println("=================================");
+        
+        for (Orden orden : ordenesActivas) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Mesero: " + orden.getMesero().getNombre());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.estaLista() ? "LISTA" : "EN PREPARACIÓN"));
+            System.out.println("Progreso: " + orden.getCantidadPlatillosListos() + "/" + 
+                             orden.getTotalPlatillos() + " platillos listos");
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de la orden a eliminar (0 para cancelar): ");
+        int idOrden = EntradaUtils.leerEntero(scanner);
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Verificar que la orden exista y no esté entregada
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null) {
+            System.out.println(" Orden no encontrada.");
+            return;
+        }
+        
+        if (orden.isEntregada()) {
+            System.out.println(" No tiene permisos para eliminar órdenes ya entregadas.");
+            System.out.println("   Solo el Sudo puede eliminar órdenes entregadas.");
+            return;
+        }
+        
+        // Mostrar detalles
+        System.out.println("\n=== DETALLES DE LA ORDEN ===");
+        orden.mostrarOrden();
+        
+        System.out.print("\n¿Está seguro de eliminar esta orden? (s/n): ");
+        String respuesta = scanner.nextLine().toLowerCase();
+        
+        if (!respuesta.equals("s") && !respuesta.equals("si")) {
+            System.out.println("Eliminación cancelada.");
+            return;
+        }
+        
+        // Preguntar motivo breve
+        System.out.print("Motivo breve de eliminación: ");
+        String motivo = scanner.nextLine();
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println(" Orden eliminada exitosamente.");
+            
+            // Registrar log
+            GestorLogs.registrarLogEliminacionOrden(idOrden, "Admin: " + motivo, sistema.getUsuarioActual().getNombre());
+            
+            // Notificar al mesero si es posible
+            System.out.println(" Informar al mesero " + orden.getMesero().getNombre() + 
+                             " sobre la eliminación de la orden #" + idOrden);
+        }
+    }
+    
+    private void crearTarea(Administrador admin) 
+    {
+	    System.out.print("Título de la tarea: ");
+	    String titulo = scanner.nextLine();
+	    
+	    System.out.print("Descripción: ");
+	    String descripcion = scanner.nextLine();
+	    
+	    // Solicitar fecha con formato específico
+	    System.out.print("Fecha límite (Formato: yyyy-MM-dd HH:mm, ejemplo: 2024-12-31 18:30): ");
+	    String fechaLimite = scanner.nextLine();
+	    
+	    // Validar formato de fecha
+	    if (!validarFormatoFecha(fechaLimite)) {
+	        System.out.println(" Error: El formato de fecha debe ser yyyy-MM-dd HH:mm");
+	        System.out.println("   Ejemplo: 2024-12-31 18:30");
+	        return;
+	    }
+	    
+	    Tarea tarea = admin.crearTarea(titulo, descripcion, fechaLimite);
+	    sistema.agregarTarea(tarea);
+	    System.out.println(" Tarea creada exitosamente");
+	}
+    
+    // Método para validar el formato de fecha
+    private static boolean validarFormatoFecha(String fecha) 
+    {
+        try {
+            // Intentar parsear la fecha
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            sdf.setLenient(false); // No permitir fechas inválidas como 2024-02-30
+            Date fechaParseada = sdf.parse(fecha);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void asignarTarea(Administrador admin) 
+    {
+	    System.out.println("\n=== ASIGNAR TAREA ===");
+	    
+	    if (sistema.getTareas().isEmpty()) {
+	        System.out.println("No hay tareas disponibles para asignar.");
+	        System.out.println("Primero debe crear tareas.");
+	        return;
+	    }
+	    
+	    System.out.println("Tareas disponibles:");
+	    sistema.listarTareas();
+	    
+	    System.out.print("\nID de la tarea a asignar (0 para cancelar): ");
+	    int idTarea = EntradaUtils.leerEntero(scanner);
+	    
+	    if (idTarea == 0) {
+	        System.out.println("Operación cancelada.");
+	        return;
+	    }
+	    
+	    Tarea tarea = sistema.buscarTareaPorId(idTarea);
+	    if (tarea == null) {
+	        System.out.println("❌ Tarea no encontrada");
+	        return;
+	    }
+	    
+	    // Mostrar empleados disponibles
+	    List<Empleado> empleados = sistema.getEmpleados();
+	    if (empleados.isEmpty()) {
+	        System.out.println(" No hay empleados registrados para asignar tareas.");
+	        return;
+	    }
+	    
+	    System.out.println("\nEmpleados disponibles:");
+	    for (Empleado emp : empleados) {
+	        System.out.println("ID: " + emp.getId() + 
+	                         " | Nombre: " + emp.getNombre() + 
+	                         " | Rol: " + emp.getRol() +
+	                         " | Tareas asignadas: " + emp.getTareasAsignadas().size());
+	    }
+	    
+	    System.out.print("\nID del empleado a asignar (0 para cancelar): ");
+	    int idEmpleado = EntradaUtils.leerEntero(scanner);
+	    
+	    if (idEmpleado == 0) {
+	        System.out.println("Operación cancelada.");
+	        return;
+	    }
+	    
+	    Empleado empleado = sistema.getEmpleados().stream()
+	        .filter(e -> e.getId() == idEmpleado)
+	        .findFirst()
+	        .orElse(null);
+	    
+	    if (empleado != null) {
+	        // Si la tarea ya tenía asignado a alguien, removerla
+	        if (tarea.getUsuarioAsignado() != null) {
+	            tarea.getUsuarioAsignado().removerTarea(tarea);
+	            System.out.println("  Tarea reasignada. Anterior asignado: " + 
+	                             tarea.getUsuarioAsignado().getNombre());
+	        }
+	        
+	        admin.asignarTarea(tarea, empleado);
+	        System.out.println(" Tarea '" + tarea.getTitulo() + 
+	                         "' asignada exitosamente a " + empleado.getNombre());
+	    } else {
+	        System.out.println(" Empleado no encontrado");
+	    }
+	}
+
 }
