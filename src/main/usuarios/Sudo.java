@@ -1,10 +1,13 @@
 package usuarios;
 
 import utilidades.EntradaUtils;
+
+import java.util.List;
 import java.util.Scanner;
 
 import database.DatabaseManager;
 import principal.SistemaTareas;
+import restaurante.Orden;
 
 
 public class Sudo extends Usuario 
@@ -178,5 +181,91 @@ public class Sudo extends Usuario
 	        System.out.println("Operación cancelada.");
 	    }
 	}
+    
+    private void eliminarOrdenSudo() 
+    {
+        System.out.println("\n=== ELIMINAR ORDEN ===");
+        
+        // Mostrar todas las órdenes
+        List<Orden> todasLasOrdenes = sistema.getOrdenes();
+        
+        if (todasLasOrdenes.isEmpty()) {
+            System.out.println("No hay órdenes registradas en el sistema.");
+            return;
+        }
+        
+        System.out.println("Lista de todas las órdenes:");
+        System.out.println("===========================");
+        
+        for (Orden orden : todasLasOrdenes) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Mesero: " + orden.getMesero().getNombre());
+            System.out.println("Fecha: " + orden.getFecha());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.isEntregada() ? "✅ ENTREGADA" : "ACTIVA"));
+            System.out.println("Lista: " + (orden.estaLista() ? "SÍ" : "NO"));
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de la orden a eliminar (0 para cancelar): ");
+        int idOrden = EntradaUtils.leerEntero(scanner);
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Buscar la orden
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null) {
+            System.out.println("Orden no encontrada.");
+            return;
+        }
+        
+        // Mostrar detalles completos de la orden
+        System.out.println("\n=== DETALLES DE LA ORDEN A ELIMINAR ===");
+        orden.mostrarOrden();
+        
+        // Preguntar motivo
+        System.out.println("\nADVERTENCIA: Esta acción no se puede deshacer");
+        System.out.println("Motivos comunes para eliminar órdenes:");
+        System.out.println("1. Error al tomar la orden");
+        System.out.println("2. Cliente canceló el pedido");
+        System.out.println("3. Problema con el pago");
+        System.out.println("4. Otra razón");
+        
+        System.out.print("\nSeleccione motivo (1-4): ");
+        int motivo = EntradaUtils.leerEntero(scanner);
+        
+        String[] motivos = {
+            "Error al tomar la orden",
+            "Cliente canceló el pedido", 
+            "Problema con el pago",
+            "Otra razón"
+        };
+        
+        String motivoStr = (motivo >= 1 && motivo <= 4) ? motivos[motivo-1] : "No especificado";
+        
+        System.out.println("\nMotivo registrado: " + motivoStr);
+        System.out.print("\n¿Está SEGURO de eliminar esta orden? (escriba 'ELIMINAR' para confirmar): ");
+        String confirmacion = scanner.nextLine();
+        
+        if (!confirmacion.equalsIgnoreCase("ELIMINAR")) {
+            System.out.println("Eliminación cancelada. La orden NO fue eliminada.");
+            return;
+        }
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println("Orden eliminada exitosamente.");
+            
+            // Registrar la eliminación en un log
+            registrarLogEliminacionOrden(idOrden, motivoStr, sistema.getUsuarioActual().getNombre());
+        }
+    }
 
 }
