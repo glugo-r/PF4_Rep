@@ -6,3 +6,4 @@ id,nombre,email,rol,password
 5,Monica Rul,monicar@restaurante.com,Mesero,monica123
 6,sam,sam@restaurante.com,Cocinero,sam123
 7,Kevin,kevin@restaurante.com,Administrador,Kev123
+8,gabriel,gabriel@restaurante.com,Administrador,gab123

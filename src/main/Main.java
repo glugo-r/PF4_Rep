@@ -23,10 +23,10 @@ public class Main {
         
         // Agregar shutdown hook para guardar automáticamente
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("\n💾 Guardando estado del sistema...");
+            System.out.println("\n Guardando estado del sistema...");
             sistema.guardarEstado();
             notificador.detener();
-            System.out.println("✅ Sistema cerrado correctamente.");
+            System.out.println(" Sistema cerrado correctamente.");
         }));
         
         System.out.println("=== SISTEMA DE GESTIÓN DE RESTAURANTE ===");
@@ -526,12 +526,12 @@ private static void gestionarTareasSudo() {
         Orden orden = sistema.buscarOrdenPorId(idOrden);
         
         if (orden == null) {
-            System.out.println("❌ Orden no encontrada.");
+            System.out.println(" Orden no encontrada.");
             return;
         }
         
         if (orden.isEntregada()) {
-            System.out.println("❌ No tiene permisos para eliminar órdenes ya entregadas.");
+            System.out.println(" No tiene permisos para eliminar órdenes ya entregadas.");
             System.out.println("   Solo el Sudo puede eliminar órdenes entregadas.");
             return;
         }
@@ -556,13 +556,13 @@ private static void gestionarTareasSudo() {
         boolean eliminada = sistema.eliminarOrden(idOrden);
         
         if (eliminada) {
-            System.out.println("✅ Orden eliminada exitosamente.");
+            System.out.println(" Orden eliminada exitosamente.");
             
             // Registrar log
             registrarLogEliminacionOrden(idOrden, "Admin: " + motivo, admin.getNombre());
             
             // Notificar al mesero si es posible
-            System.out.println("📢 Informar al mesero " + orden.getMesero().getNombre() + 
+            System.out.println(" Informar al mesero " + orden.getMesero().getNombre() + 
                              " sobre la eliminación de la orden #" + idOrden);
         }
     }
@@ -722,19 +722,19 @@ private static void gestionarTareasSudo() {
         Orden orden = sistema.buscarOrdenPorId(idOrden);
         
         if (orden == null || orden.getMesero().getId() != mesero.getId()) {
-            System.out.println("❌ Esta orden no existe o no te pertenece.");
+            System.out.println(" Esta orden no existe o no te pertenece.");
             return;
         }
         
         if (orden.isEntregada()) {
-            System.out.println("❌ No puedes eliminar una orden ya entregada.");
+            System.out.println(" No puedes eliminar una orden ya entregada.");
             System.out.println("   Contacta a un administrador si hay un problema.");
             return;
         }
         
         // Verificar si hay platillos ya preparados
         if (orden.getCantidadPlatillosListos() > 0) {
-            System.out.println("⚠️  Advertencia: Hay " + orden.getCantidadPlatillosListos() + 
+            System.out.println(" Advertencia: Hay " + orden.getCantidadPlatillosListos() + 
                              " platillo(s) ya preparados.");
             System.out.print("¿Está seguro de continuar? (s/n): ");
             String respuesta = scanner.nextLine().toLowerCase();
@@ -744,7 +744,7 @@ private static void gestionarTareasSudo() {
                 return;
             }
             
-            System.out.println("📢 Informar al cocinero sobre los platillos preparados que se descartarán.");
+            System.out.println(" Informar al cocinero sobre los platillos preparados que se descartarán.");
         }
         
         System.out.print("Motivo breve (ej: cliente canceló, error en pedido): ");
@@ -763,7 +763,7 @@ private static void gestionarTareasSudo() {
         boolean eliminada = sistema.eliminarOrden(idOrden);
         
         if (eliminada) {
-            System.out.println("✅ Tu orden ha sido eliminada exitosamente.");
+            System.out.println(" Tu orden ha sido eliminada exitosamente.");
             
             // Registrar log
             registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, mesero.getNombre());
@@ -793,22 +793,22 @@ private static void gestionarTareasSudo() {
         switch (tipo) {
             case 1:
                 sistema.agregarUsuario(new Administrador(nombre, email, password));
-                System.out.println("✅ Administrador creado exitosamente");
+                System.out.println(" Administrador creado exitosamente");
                 break;
             case 2:
                 sistema.agregarUsuario(new Cocinero(nombre, email, password));
-                System.out.println("✅ Cocinero creado exitosamente");
+                System.out.println(" Cocinero creado exitosamente");
                 break;
             case 3:
                 sistema.agregarUsuario(new Mesero(nombre, email, password));
-                System.out.println("✅ Mesero creado exitosamente");
+                System.out.println(" Mesero creado exitosamente");
                 break;
             default:
-                System.out.println("❌ Tipo de usuario inválido");
+                System.out.println(" Tipo de usuario inválido");
                 return;
         }
     } catch (EmailInvalidoException | NombreInvalidoException e) {
-        System.out.println("❌ Error: " + e.getMessage());
+        System.out.println(" Error: " + e.getMessage());
     }
 }
     
@@ -825,14 +825,14 @@ private static void gestionarTareasSudo() {
     
     // Validar formato de fecha
     if (!validarFormatoFecha(fechaLimite)) {
-        System.out.println("❌ Error: El formato de fecha debe ser yyyy-MM-dd HH:mm");
+        System.out.println(" Error: El formato de fecha debe ser yyyy-MM-dd HH:mm");
         System.out.println("   Ejemplo: 2024-12-31 18:30");
         return;
     }
     
     Tarea tarea = admin.crearTarea(titulo, descripcion, fechaLimite);
     sistema.agregarTarea(tarea);
-    System.out.println("✅ Tarea creada exitosamente");
+    System.out.println(" Tarea creada exitosamente");
 }
 
 // Método para validar el formato de fecha
@@ -869,7 +869,7 @@ private static boolean validarFormatoFecha(String fecha) {
     
     Tarea tarea = sistema.buscarTareaPorId(idTarea);
     if (tarea == null) {
-        System.out.println("❌ Tarea no encontrada.");
+        System.out.println(" Tarea no encontrada.");
         return;
     }
     
@@ -887,7 +887,7 @@ private static boolean validarFormatoFecha(String fecha) {
         
         // Eliminar tarea del sistema
         sistema.getTareas().removeIf(t -> t.getId() == idTarea);
-        System.out.println("✅ Tarea eliminada exitosamente.");
+        System.out.println(" Tarea eliminada exitosamente.");
     } else {
         System.out.println("Operación cancelada.");
     }
@@ -922,7 +922,7 @@ private static boolean validarFormatoFecha(String fecha) {
     // Mostrar empleados disponibles
     List<Empleado> empleados = sistema.getEmpleados();
     if (empleados.isEmpty()) {
-        System.out.println("❌ No hay empleados registrados para asignar tareas.");
+        System.out.println(" No hay empleados registrados para asignar tareas.");
         return;
     }
     
@@ -951,15 +951,15 @@ private static boolean validarFormatoFecha(String fecha) {
         // Si la tarea ya tenía asignado a alguien, removerla
         if (tarea.getUsuarioAsignado() != null) {
             tarea.getUsuarioAsignado().removerTarea(tarea);
-            System.out.println("⚠️  Tarea reasignada. Anterior asignado: " + 
+            System.out.println("  Tarea reasignada. Anterior asignado: " + 
                              tarea.getUsuarioAsignado().getNombre());
         }
         
         admin.asignarTarea(tarea, empleado);
-        System.out.println("✅ Tarea '" + tarea.getTitulo() + 
+        System.out.println(" Tarea '" + tarea.getTitulo() + 
                          "' asignada exitosamente a " + empleado.getNombre());
     } else {
-        System.out.println("❌ Empleado no encontrado");
+        System.out.println(" Empleado no encontrado");
     }
 }
     
@@ -995,15 +995,15 @@ private static boolean validarFormatoFecha(String fecha) {
     try {
         if (tipo == 1) {
             sistema.agregarUsuario(new Cocinero(nombre, email, password));
-            System.out.println("✅ Cocinero agregado exitosamente");
+            System.out.println(" Cocinero agregado exitosamente");
         } else if (tipo == 2) {
             sistema.agregarUsuario(new Mesero(nombre, email, password));
-            System.out.println("✅ Mesero agregado exitosamente");
+            System.out.println(" Mesero agregado exitosamente");
         } else {
-            System.out.println("❌ Opción inválida");
+            System.out.println(" Opción inválida");
         }
     } catch (EmailInvalidoException | NombreInvalidoException e) {
-        System.out.println("❌ Error: " + e.getMessage());
+        System.out.println(" Error: " + e.getMessage());
     }
 }
     
@@ -1056,12 +1056,12 @@ private static boolean validarFormatoFecha(String fecha) {
                 
                 if (cantidad > 0) {
                     items.add(new ItemOrden(platillo, cantidad));
-                    System.out.println("✅ Agregados " + cantidad + " x '" + platillo.getNombre() + "' a la orden");
+                    System.out.println(" Agregados " + cantidad + " x '" + platillo.getNombre() + "' a la orden");
                 } else {
-                    System.out.println("❌ La cantidad debe ser mayor a 0");
+                    System.out.println(" La cantidad debe ser mayor a 0");
                 }
             } else {
-                System.out.println("❌ Platillo no encontrado");
+                System.out.println(" Platillo no encontrado");
             }
         }
     }
@@ -1070,7 +1070,7 @@ private static boolean validarFormatoFecha(String fecha) {
     if (!items.isEmpty()) {
     Orden orden = mesero.tomarPedido(mesa, items);
     sistema.agregarOrden(orden); // Usar este método en lugar de add directo
-    System.out.println("\n✅ Pedido registrado exitosamente");
+    System.out.println("\n Pedido registrado exitosamente");
     System.out.println("Orden #" + orden.getId());
     System.out.println("Total: $" + orden.getTotal());
     sistema.agregarVenta(orden.getTotal());
@@ -1079,7 +1079,7 @@ private static boolean validarFormatoFecha(String fecha) {
     orden.mostrarOrden();
 }
       else {
-        System.out.println("❌ No se agregaron platillos a la orden");
+        System.out.println(" No se agregaron platillos a la orden");
         mesa.setOcupada(false); // Liberar la mesa
     }
 }
@@ -1105,7 +1105,7 @@ private static boolean validarFormatoFecha(String fecha) {
         .collect(java.util.stream.Collectors.toList());
     
     if (ordenesPendientes.isEmpty()) {
-        System.out.println("✅ No hay órdenes pendientes.");
+        System.out.println(" No hay órdenes pendientes.");
         return;
     }
     
@@ -1153,11 +1153,11 @@ private static boolean validarFormatoFecha(String fecha) {
             
             // Mostrar estado de la orden
             if (orden.estaLista()) {
-                System.out.println("Estado: ✅ LISTA PARA ENTREGAR");
+                System.out.println("Estado: LISTA PARA ENTREGAR");
             } else {
                 int total = orden.getTotalPlatillos();
                 int listos = orden.getCantidadPlatillosListos(); // Cambiado
-                System.out.println("Estado: 🔄 EN PREPARACIÓN (" + listos + "/" + total + " platillos listos)");
+                System.out.println("Estado: EN PREPARACIÓN (" + listos + "/" + total + " platillos listos)");
             }
             
             // Mostrar items con su estado
@@ -1204,7 +1204,7 @@ private static boolean validarFormatoFecha(String fecha) {
         .orElse(null);
     
     if (orden == null) {
-        System.out.println("❌ Orden no encontrada o ya entregada.");
+        System.out.println(" Orden no encontrada o ya entregada.");
         return;
     }
     
@@ -1215,7 +1215,7 @@ private static boolean validarFormatoFecha(String fecha) {
     List<ItemOrden> itemsPendientes = orden.getItemsPendientes();
     
     if (itemsPendientes.isEmpty()) {
-        System.out.println("\n✅ ¡Todos los items de esta orden ya están completos!");
+        System.out.println("\n ¡Todos los items de esta orden ya están completos!");
         System.out.println("Estado: LISTA PARA ENTREGAR");
         return;
     }
@@ -1240,7 +1240,7 @@ private static boolean validarFormatoFecha(String fecha) {
     }
     
     if (seleccion < 1 || seleccion > itemsPendientes.size()) {
-        System.out.println("❌ Selección inválida.");
+        System.out.println(" Selección inválida.");
         return;
     }
     
@@ -1253,29 +1253,29 @@ private static boolean validarFormatoFecha(String fecha) {
     int cantidad = leerEntero();
     
     if (cantidad < 1 || cantidad > itemSeleccionado.getCantidadPendiente()) {
-        System.out.println("❌ Cantidad inválida.");
+        System.out.println(" Cantidad inválida.");
         return;
     }
     
     // Usar el nuevo método que maneja cantidad
     cocinero.marcarComidaLista(orden, itemSeleccionado.getPlatillo(), cantidad);
     
-    System.out.println("\n✅ Marcadas " + cantidad + " unidad(es) de '" + 
+    System.out.println("\n Marcadas " + cantidad + " unidad(es) de '" + 
                      itemSeleccionado.getPlatillo().getNombre() + "' como LISTAS.");
     
     // Verificar si todos los items están completos
     if (orden.estaLista()) {
-        System.out.println("\n🎉 ¡¡¡TODOS LOS ITEMS DE LA ORDEN #" + 
+        System.out.println("\n ¡¡¡TODOS LOS ITEMS DE LA ORDEN #" + 
                          orden.getId() + " ESTÁN COMPLETOS!!!");
-        System.out.println("📢 Informar al mesero que la orden está lista para entregar.");
+        System.out.println(" Informar al mesero que la orden está lista para entregar.");
         System.out.println("Mesa: " + orden.getMesa().getNumero());
         System.out.println("Mesero asignado: " + orden.getMesero().getNombre());
     } else {
         int pendientes = orden.getCantidadPlatillosPendientes();
         int total = orden.getTotalPlatillos();
-        System.out.println("🔄 Progreso: " + (total - pendientes) + "/" + 
+        System.out.println(" Progreso: " + (total - pendientes) + "/" + 
                          total + " platillos listos");
-        System.out.println("⏳ Aún faltan " + pendientes + " platillo(s) por preparar.");
+        System.out.println(" Aún faltan " + pendientes + " platillo(s) por preparar.");
     }
     
     // Guardar estado del sistema
@@ -1294,7 +1294,7 @@ private static boolean validarFormatoFecha(String fecha) {
     
     if (orden != null) {
         if (!orden.estaLista()) {
-            System.out.println("⚠️  Esta orden no está completamente lista.");
+            System.out.println("  Esta orden no está completamente lista.");
             System.out.println("Platillos pendientes: " + 
                              orden.getCantidadPlatillosPendientes() + "/" + 
                              orden.getTotalPlatillos());
@@ -1312,7 +1312,7 @@ private static boolean validarFormatoFecha(String fecha) {
         // Liberar la mesa si la orden se entregó
         if (orden.isEntregada()) {
             orden.getMesa().setOcupada(false);
-            System.out.println("✅ Mesa " + orden.getMesa().getNumero() + " liberada.");
+            System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
         }
     } else {
         System.out.println("Orden no encontrada o no pertenece a este mesero");
@@ -1324,7 +1324,7 @@ mesero.entregarPedido(orden);
 // Liberar la mesa si la orden se entregó
 if (orden.isEntregada()) {
     orden.getMesa().setOcupada(false);
-    System.out.println("✅ Mesa " + orden.getMesa().getNumero() + " liberada.");
+    System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
     // Guardar estado
     sistema.guardarEstado();
 }
@@ -1365,7 +1365,7 @@ if (orden.isEntregada()) {
         .orElse(null);
     
     if (orden == null) {
-        System.out.println("❌ Orden no encontrada o no pertenece a este mesero.");
+        System.out.println(" Orden no encontrada o no pertenece a este mesero.");
         return;
     }
     
@@ -1403,12 +1403,12 @@ if (orden.isEntregada()) {
                 break;
             case 5:
                 modificando = false;
-                System.out.println("✅ Modificación de orden finalizada.");
+                System.out.println(" Modificación de orden finalizada.");
                 // Guardar cambios
                 sistema.guardarEstado();
                 break;
             default:
-                System.out.println("❌ Opción inválida.");
+                System.out.println(" Opción inválida.");
         }
     }
 }
@@ -1455,7 +1455,7 @@ private static void agregarPlatilloAOrden(Orden orden) {
     for (ItemOrden item : orden.getItems()) {
         if (item.getPlatillo().getId() == idPlatillo) {
             yaExiste = true;
-            System.out.println("⚠️  Este platillo ya existe en la orden.");
+            System.out.println("  Este platillo ya existe en la orden.");
             System.out.println("Cantidad actual: " + item.getCantidad());
             System.out.print("¿Desea agregar " + cantidad + " más? (s/n): ");
             String respuesta = scanner.nextLine().toLowerCase();
@@ -1463,7 +1463,7 @@ private static void agregarPlatilloAOrden(Orden orden) {
             if (respuesta.equals("s") || respuesta.equals("si")) {
                 // Agregar a la cantidad existente
                 orden.agregarCantidadPlatillo(idPlatillo, cantidad);
-                System.out.println("✅ Agregados " + cantidad + " más de '" + platillo.getNombre() + "'.");
+                System.out.println(" Agregados " + cantidad + " más de '" + platillo.getNombre() + "'.");
             } else {
                 System.out.println("Operación cancelada.");
             }
@@ -1473,7 +1473,7 @@ private static void agregarPlatilloAOrden(Orden orden) {
     
     if (!yaExiste) {
         orden.agregarNuevoPlatillo(platillo, cantidad);
-        System.out.println("✅ Agregados " + cantidad + " x '" + platillo.getNombre() + "' a la orden.");
+        System.out.println(" Agregados " + cantidad + " x '" + platillo.getNombre() + "' a la orden.");
     }
 }
 
@@ -1506,7 +1506,7 @@ private static void eliminarPlatilloDeOrden(Orden orden) {
     }
     
     if (seleccion < 1 || seleccion > items.size()) {
-        System.out.println("❌ Selección inválida.");
+        System.out.println(" Selección inválida.");
         return;
     }
     
@@ -1521,16 +1521,16 @@ private static void eliminarPlatilloDeOrden(Orden orden) {
     if (confirmacion.equals("s") || confirmacion.equals("si")) {
         boolean eliminado = orden.eliminarPlatillo(itemSeleccionado.getPlatillo().getId());
         if (eliminado) {
-            System.out.println("✅ Platillo eliminado de la orden.");
+            System.out.println(" Platillo eliminado de la orden.");
             
             // Si había platillos listos, informar al cocinero
             if (itemSeleccionado.getCantidadLista() > 0) {
-                System.out.println("⚠️  Se eliminaron " + itemSeleccionado.getCantidadLista() + 
+                System.out.println("  Se eliminaron " + itemSeleccionado.getCantidadLista() + 
                                  " platillo(s) que ya estaban listos.");
                 System.out.println("   Informar al cocinero sobre el cambio.");
             }
         } else {
-            System.out.println("❌ Error al eliminar el platillo.");
+            System.out.println(" Error al eliminar el platillo.");
         }
     } else {
         System.out.println("Operación cancelada.");
