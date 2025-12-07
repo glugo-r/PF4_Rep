@@ -2,6 +2,8 @@ package usuarios;
 
 import utilidades.EntradaUtils;
 import java.util.Scanner;
+
+import database.DatabaseManager;
 import principal.SistemaTareas;
 
 
@@ -114,6 +116,29 @@ public class Sudo extends Usuario
             default:
                 System.out.println("Opción inválida");
         }
+    }
+    
+    private void cambiarPasswordSudo() 
+    {
+        System.out.print("Ingrese nueva contraseña: ");
+        String nuevaPassword = scanner.nextLine();
+        
+        System.out.print("Confirme nueva contraseña: ");
+        String confirmPassword = scanner.nextLine();
+        
+        if (nuevaPassword.equals(confirmPassword)) {
+            if (nuevaPassword.length() < 4) 
+            {
+                System.out.println("La contraseña debe tener al menos 4 caracteres.");
+                return;
+            }
+            
+            sistema.getUsuarioActual().setPassword(nuevaPassword);
+            DatabaseManager.guardarUsuarios(sistema.getUsuarios());
+            System.out.println("Contraseña cambiada exitosamente.");
+        } 
+        else
+            System.out.println("Las contraseñas no coinciden.");
     }
 
 }
