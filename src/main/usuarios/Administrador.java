@@ -412,10 +412,10 @@ public class Administrador extends Usuario
 	    
 	    try {
 	        if (tipo == 1) {
-	            sistema.agregarUsuario(new Cocinero(nombre, email, password));
+	            sistema.agregarUsuario(new Cocinero(nombre, email, password, sistema, scanner));
 	            System.out.println(" Cocinero agregado exitosamente");
 	        } else if (tipo == 2) {
-	            sistema.agregarUsuario(new Mesero(nombre, email, password));
+	            sistema.agregarUsuario(new Mesero(nombre, email, password, sistema, scanner));
 	            System.out.println(" Mesero agregado exitosamente");
 	        } else {
 	            System.out.println(" Opción inválida");
