@@ -43,7 +43,7 @@ public class GestorUsuarios
 	    try {
 	        switch (tipo) {
 	            case 1:
-	                sistema.agregarUsuario(new Administrador(nombre, email, password));
+	                sistema.agregarUsuario(new Administrador(nombre, email, password, sistema, scanner));
 	                System.out.println(" Administrador creado exitosamente");
 	                break;
 	            case 2:
