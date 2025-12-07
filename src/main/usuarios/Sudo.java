@@ -2,6 +2,7 @@ package usuarios;
 
 import utilidades.EntradaUtils;
 import servicios.GestorUsuarios;
+import servicios.GestorLogs;
 
 import java.util.List;
 import java.util.Scanner;
@@ -268,7 +269,7 @@ public class Sudo extends Usuario
             System.out.println("Orden eliminada exitosamente.");
             
             // Registrar la eliminación en un log
-            registrarLogEliminacionOrden(idOrden, motivoStr, sistema.getUsuarioActual().getNombre());
+            GestorLogs.registrarLogEliminacionOrden(idOrden, motivoStr, sistema.getUsuarioActual().getNombre());
         }
     }
 
