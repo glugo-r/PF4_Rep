@@ -16,10 +16,13 @@ public class Mesero extends Empleado
     private int mesasAtendidas;
     private List<Orden> ordenesActivas;
     
-    public Mesero(String nombre, String email, String password) {
+    public Mesero(String nombre, String email, String password, SistemaTareas sistema, Scanner scanner) 
+    {
         super(nombre, email, "Mesero", password);
         this.mesasAtendidas = 0;
         this.ordenesActivas = new ArrayList<>();
+        this.sistema = sistema;
+        this.scanner = scanner;
     }
     
     // Método principal que usa ItemOrden
@@ -44,11 +47,11 @@ public class Mesero extends Empleado
     
     public void entregarPedido(Orden orden) {
         if (orden.estaLista()) {
-            System.out.println("✅ Pedido entregado a la mesa " + orden.getMesa().getNumero());
+            System.out.println("Pedido entregado a la mesa " + orden.getMesa().getNumero());
             orden.setEntregada(true);
             ordenesActivas.remove(orden);
         } else {
-            System.out.println("⚠️  El pedido aún no está completamente listo para entregar.");
+            System.out.println("El pedido aún no está completamente listo para entregar.");
             System.out.println("   Platillos pendientes: " + orden.getCantidadPlatillosPendientes() + 
                              "/" + orden.getTotalPlatillos());
         }
@@ -61,7 +64,7 @@ public class Mesero extends Empleado
     public boolean mostrarMenu() 
     {
 	    System.out.println("\n=== MENÚ MESERO ===");
-	    System.out.println("Bienvenido, " + mesero.getNombre());
+	    System.out.println("Bienvenido, " + this.getNombre());
 	    System.out.println("1. Tomar pedido");
 	    System.out.println("2. Ver mis órdenes");
 	    System.out.println("3. Modificar orden");
@@ -125,6 +128,166 @@ public class Mesero extends Empleado
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
+	    }
+	}
+
+    private void eliminarOrdenMesero(Mesero mesero) {
+        System.out.println("\n=== ELIMINAR MI ORDEN ===");
+        
+        // Mostrar solo órdenes de este mesero que no estén entregadas
+        List<Orden> ordenesMesero = sistema.getOrdenes().stream()
+            .filter(o -> o.getMesero().getId() == mesero.getId() && !o.isEntregada())
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (ordenesMesero.isEmpty()) {
+            System.out.println("No tienes órdenes activas para eliminar.");
+            return;
+        }
+        
+        System.out.println("Tus órdenes activas:");
+        for (Orden orden : ordenesMesero) {
+            System.out.println("\n[Orden #" + orden.getId() + "]");
+            System.out.println("Mesa: " + orden.getMesa().getNumero());
+            System.out.println("Total: $" + orden.getTotal());
+            System.out.println("Estado: " + (orden.estaLista() ? "LISTA" : "EN PREPARACIÓN"));
+            System.out.println("-------------------");
+        }
+        
+        System.out.print("\nID de tu orden a eliminar (0 para cancelar): ");
+        int idOrden = EntradaUtils.leerEntero(scanner);
+        
+        if (idOrden == 0) {
+            System.out.println("Operación cancelada.");
+            return;
+        }
+        
+        // Verificar que la orden pertenezca a este mesero
+        Orden orden = sistema.buscarOrdenPorId(idOrden);
+        
+        if (orden == null || orden.getMesero().getId() != mesero.getId()) {
+            System.out.println(" Esta orden no existe o no te pertenece.");
+            return;
+        }
+        
+        if (orden.isEntregada()) {
+            System.out.println(" No puedes eliminar una orden ya entregada.");
+            System.out.println("   Contacta a un administrador si hay un problema.");
+            return;
+        }
+        
+        // Verificar si hay platillos ya preparados
+        if (orden.getCantidadPlatillosListos() > 0) {
+            System.out.println(" Advertencia: Hay " + orden.getCantidadPlatillosListos() + 
+                             " platillo(s) ya preparados.");
+            System.out.print("¿Está seguro de continuar? (s/n): ");
+            String respuesta = scanner.nextLine().toLowerCase();
+            
+            if (!respuesta.equals("s") && !respuesta.equals("si")) {
+                System.out.println("Eliminación cancelada.");
+                return;
+            }
+            
+            System.out.println(" Informar al cocinero sobre los platillos preparados que se descartarán.");
+        }
+        
+        System.out.print("Motivo breve (ej: cliente canceló, error en pedido): ");
+        String motivo = scanner.nextLine();
+        
+        // Confirmación final
+        System.out.print("\n¿CONFIRMAR eliminación de la orden #" + idOrden + "? (s/n): ");
+        String confirmacion = scanner.nextLine().toLowerCase();
+        
+        if (!confirmacion.equals("s") && !confirmacion.equals("si")) {
+            System.out.println("Eliminación cancelada.");
+            return;
+        }
+        
+        // Eliminar la orden
+        boolean eliminada = sistema.eliminarOrden(idOrden);
+        
+        if (eliminada) {
+            System.out.println(" Tu orden ha sido eliminada exitosamente.");
+            
+            // Registrar log
+            registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, mesero.getNombre());
+        }
+    }
+    
+    private void tomarPedido() 
+    {
+	    verMesasDisponibles();
+	    System.out.print("Número de mesa: ");
+	    int numeroMesa = EntradaUtils.leerEntero(scanner);
+	    
+	    Mesa mesa = sistema.getMesas().stream()
+	        .filter(m -> m.getNumero() == numeroMesa && !m.isOcupada())
+	        .findFirst()
+	        .orElse(null);
+	    
+	    if (mesa == null) {
+	        System.out.println("Mesa no disponible");
+	        return;
+	    }
+	    
+	    mesa.setOcupada(true);
+	    
+	    // Crear lista de ItemOrden
+	    List<ItemOrden> items = new ArrayList<>();
+	    boolean agregando = true;
+	    
+	    while (agregando) {
+	        System.out.println("\n=== AGREGAR PLATILLOS A LA ORDEN ===");
+	        System.out.println("Platillos disponibles:");
+	        
+	        for (Platillo platillo : sistema.getPlatillos()) {
+	            System.out.println("[ID: " + platillo.getId() + "] " + 
+	                             platillo.getNombre() + 
+	                             " - $" + platillo.getPrecio() +
+	                             " (" + platillo.getTiempoPreparacion() + " min)");
+	        }
+	        
+	        System.out.print("\nID del platillo (0 para terminar): ");
+	        int idPlatillo = EntradaUtils.leerEntero(scanner);
+	        
+	        if (idPlatillo == 0) {
+	            agregando = false;
+	        } else {
+	            Platillo platillo = sistema.getPlatillos().stream()
+	                .filter(p -> p.getId() == idPlatillo)
+	                .findFirst()
+	                .orElse(null);
+	            
+	            if (platillo != null) {
+	                System.out.print("Cantidad de '" + platillo.getNombre() + "': ");
+	                int cantidad = EntradaUtils.leerEntero(scanner);
+	                
+	                if (cantidad > 0) {
+	                    items.add(new ItemOrden(platillo, cantidad));
+	                    System.out.println(" Agregados " + cantidad + " x '" + platillo.getNombre() + "' a la orden");
+	                } else {
+	                    System.out.println(" La cantidad debe ser mayor a 0");
+	                }
+	            } else {
+	                System.out.println(" Platillo no encontrado");
+	            }
+	        }
+	    }
+	    
+	    // Verificar si se agregaron items
+	    if (!items.isEmpty()) {
+	    Orden orden = this.tomarPedido(mesa, items);
+	    sistema.agregarOrden(orden); // Usar este método en lugar de add directo
+	    System.out.println("\n Pedido registrado exitosamente");
+	    System.out.println("Orden #" + orden.getId());
+	    System.out.println("Total: $" + orden.getTotal());
+	    sistema.agregarVenta(orden.getTotal());
+	    
+	    // Mostrar resumen de la orden
+	    orden.mostrarOrden();
+	}
+	      else {
+	        System.out.println(" No se agregaron platillos a la orden");
+	        mesa.setOcupada(false); // Liberar la mesa
 	    }
 	}
 
