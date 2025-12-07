@@ -93,5 +93,27 @@ public class Sudo extends Usuario
 	            return false;
 	    }
 	}
+    
+    private void gestionarTareasSudo() 
+    {
+        System.out.println("\n=== GESTIÓN DE TAREAS ===");
+        System.out.println("1. Listar todas las tareas");
+        System.out.println("2. Eliminar tarea");
+        System.out.print("Seleccione opción: ");
+        
+        int opcion = EntradaUtils.leerEntero(scanner);
+        
+        switch (opcion) 
+        {
+            case 1:
+                sistema.listarTareas();
+                break;
+            case 2:
+                eliminarTarea();
+                break;
+            default:
+                System.out.println("Opción inválida");
+        }
+    }
 
 }
