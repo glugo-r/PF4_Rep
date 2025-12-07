@@ -3,6 +3,7 @@ package usuarios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import servicios.GestorLogs;
 
 import principal.SistemaTareas;
 import restaurante.*;
@@ -80,27 +81,27 @@ public class Mesero extends Empleado
 	    
 	    switch (opcion) {
 	        case 1:
-	            tomarPedido(mesero);
+	            tomarPedido();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
 	        case 2:
-	            verOrdenesMesero(mesero);
+	            verOrdenesMesero();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
 	        case 3:
-	            modificarOrden(mesero);
+	            modificarOrden();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
 	        case 4:
-	            eliminarOrdenMesero(mesero);
+	            eliminarOrdenMesero();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
 	        case 5:
-	            entregarPedido(mesero);
+	            entregarPedido();
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
@@ -209,7 +210,7 @@ public class Mesero extends Empleado
             System.out.println(" Tu orden ha sido eliminada exitosamente.");
             
             // Registrar log
-            registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, mesero.getNombre());
+            GestorLogs.registrarLogEliminacionOrden(idOrden, "Mesero: " + motivo, this.getNombre());
         }
     }
     
@@ -331,5 +332,53 @@ public class Mesero extends Empleado
 	    }
 	}
     
-    
+    private void entregarPedido() 
+    {
+	    verOrdenesMesero();
+	    System.out.print("ID de la orden a entregar: ");
+	    int idOrden = EntradaUtils.leerEntero(scanner);
+	    
+	    Orden orden = sistema.getOrdenes().stream()
+	        .filter(o -> o.getId() == idOrden && o.getMesero().getId() == mesero.getId())
+	        .findFirst()
+	        .orElse(null);
+	    
+	    if (orden != null) {
+	        if (!orden.estaLista()) {
+	            System.out.println("  Esta orden no está completamente lista.");
+	            System.out.println("Platillos pendientes: " + 
+	                             orden.getCantidadPlatillosPendientes() + "/" + 
+	                             orden.getTotalPlatillos());
+	            System.out.print("¿Desea continuar con la entrega? (s/n): ");
+	            String respuesta = scanner.nextLine().toLowerCase();
+	            if (!respuesta.equals("s") && !respuesta.equals("si")) {
+	                System.out.println("Entrega cancelada.");
+	                return;
+	            }
+	        }
+	        
+	        // Llama al método entregarPedido del mesero
+	        this.entregarPedido(orden);
+	        
+	        // Liberar la mesa si la orden se entregó
+	        if (orden.isEntregada()) {
+	            orden.getMesa().setOcupada(false);
+	            System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
+	        }
+	    } else {
+	        System.out.println("Orden no encontrada o no pertenece a este mesero");
+	    }
+	    
+	    // Llama al método entregarPedido del mesero
+	    this.entregarPedido(orden);
+	
+	    // Liberar la mesa si la orden se entregó
+		if (orden.isEntregada()) {
+		    orden.getMesa().setOcupada(false);
+		    System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
+		    // Guardar estado
+		    sistema.guardarEstado();
+		}
+	}
+
 }

@@ -104,56 +104,6 @@ public class Main {
             }
         }
     }    
-    
-    
-    
-    private static void entregarPedido(Mesero mesero) {
-    verOrdenesMesero(mesero);
-    System.out.print("ID de la orden a entregar: ");
-    int idOrden = leerEntero();
-    
-    Orden orden = sistema.getOrdenes().stream()
-        .filter(o -> o.getId() == idOrden && o.getMesero().getId() == mesero.getId())
-        .findFirst()
-        .orElse(null);
-    
-    if (orden != null) {
-        if (!orden.estaLista()) {
-            System.out.println("  Esta orden no está completamente lista.");
-            System.out.println("Platillos pendientes: " + 
-                             orden.getCantidadPlatillosPendientes() + "/" + 
-                             orden.getTotalPlatillos());
-            System.out.print("¿Desea continuar con la entrega? (s/n): ");
-            String respuesta = scanner.nextLine().toLowerCase();
-            if (!respuesta.equals("s") && !respuesta.equals("si")) {
-                System.out.println("Entrega cancelada.");
-                return;
-            }
-        }
-        
-        // Llama al método entregarPedido del mesero
-        mesero.entregarPedido(orden);
-        
-        // Liberar la mesa si la orden se entregó
-        if (orden.isEntregada()) {
-            orden.getMesa().setOcupada(false);
-            System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
-        }
-    } else {
-        System.out.println("Orden no encontrada o no pertenece a este mesero");
-    }
-    
-    // Llama al método entregarPedido del mesero
-mesero.entregarPedido(orden);
-
-// Liberar la mesa si la orden se entregó
-if (orden.isEntregada()) {
-    orden.getMesa().setOcupada(false);
-    System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
-    // Guardar estado
-    sistema.guardarEstado();
-}
-}
 
     private static void modificarOrden(Mesero mesero) {
     System.out.println("\n=== MODIFICAR ORDEN ===");
