@@ -105,44 +105,6 @@ public class Main {
         }
     }    
     
-    private static void verOrdenesMesero(Mesero mesero) {
-    List<Orden> ordenesMesero = sistema.getOrdenes().stream()
-        .filter(o -> o.getMesero().getId() == mesero.getId() && !o.isEntregada())
-        .collect(java.util.stream.Collectors.toList());
-    
-    if (ordenesMesero.isEmpty()) {
-        System.out.println("No tienes órdenes activas");
-    } else {
-        System.out.println("\n=== MIS ÓRDENES ACTIVAS ===");
-        System.out.println("Total órdenes: " + ordenesMesero.size());
-        
-        for (Orden orden : ordenesMesero) {
-            System.out.println("\n[Orden #" + orden.getId() + "]");
-            System.out.println("Mesa: " + orden.getMesa().getNumero());
-            
-            // Mostrar estado de la orden
-            if (orden.estaLista()) {
-                System.out.println("Estado: LISTA PARA ENTREGAR");
-            } else {
-                int total = orden.getTotalPlatillos();
-                int listos = orden.getCantidadPlatillosListos(); // Cambiado
-                System.out.println("Estado: EN PREPARACIÓN (" + listos + "/" + total + " platillos listos)");
-            }
-            
-            // Mostrar items con su estado
-            System.out.println("Items:");
-            for (ItemOrden item : orden.getItems()) {
-                System.out.println("  - " + item.getPlatillo().getNombre() + 
-                                 " x" + item.getCantidad() + 
-                                 " | $" + item.getPlatillo().getPrecio() + " c/u" +
-                                 " | Estado: " + item.getCantidadLista() + "/" + item.getCantidad() + " listos");
-            }
-            
-            System.out.println("Total: $" + orden.getTotal());
-            System.out.println("-------------------");
-        }
-    }
-}
     
     
     private static void entregarPedido(Mesero mesero) {
