@@ -3,6 +3,7 @@ package usuarios;
 import restaurante.Platillo;
 import restaurante.Orden;
 
+import java.util.List;
 import java.util.Scanner;
 import utilidades.EntradaUtils;
 
@@ -56,8 +57,8 @@ public class Cocinero extends Empleado
     
     public boolean mostrarMenu() {
         System.out.println("\n=== MENÚ COCINERO ===");
-        System.out.println("Bienvenido, " + cocinero.getNombre());
-        System.out.println("Platillos preparados hoy: " + cocinero.getPlatillosPreparados());
+        System.out.println("Bienvenido, " + this.getNombre());
+        System.out.println("Platillos preparados hoy: " + this.getPlatillosPreparados());
         System.out.println("\n1. Ver mis tareas asignadas");
         System.out.println("2. Ver órdenes pendientes (resumen)");
         System.out.println("3. Ver detalles de órdenes pendientes");
@@ -105,4 +106,20 @@ public class Cocinero extends Empleado
                 return false;
         }
     }
+    
+    private void verOrdenesPendientes() {
+        List<Orden> ordenesPendientes = sistema.getOrdenes().stream()
+            .filter(o -> !o.isEntregada())
+            .collect(java.util.stream.Collectors.toList());
+        
+        if (ordenesPendientes.isEmpty()) {
+            System.out.println("No hay órdenes pendientes");
+        } else {
+            for (Orden orden : ordenesPendientes) {
+                orden.mostrarOrden();
+                System.out.println("===================");
+            }
+        }
+    }
+    
 }

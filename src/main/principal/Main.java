@@ -95,7 +95,7 @@ public class Main {
             else if (usuario instanceof Administrador) {
                 cerrarSesion = ((Administrador) usuario).mostrarMenu();
             } else if (usuario instanceof Cocinero) {
-                cerrarSesion = mostrarMenuCocinero((Cocinero) usuario);
+                cerrarSesion = ((Cocinero) usuario).mostrarMenu();
             } else if (usuario instanceof Mesero) {
                 cerrarSesion = mostrarMenuMesero((Mesero) usuario);
             } else {
@@ -103,12 +103,7 @@ public class Main {
                 cerrarSesion = true;
             }
         }
-    }
-    
-    
-    
-    
-    
+    }    
     
     private static boolean mostrarMenuMesero(Mesero mesero) {
     System.out.println("\n=== MENÚ MESERO ===");
@@ -338,20 +333,6 @@ public class Main {
     }
 }
     
-    private static void verOrdenesPendientes() {
-        List<Orden> ordenesPendientes = sistema.getOrdenes().stream()
-            .filter(o -> !o.isEntregada())
-            .collect(java.util.stream.Collectors.toList());
-        
-        if (ordenesPendientes.isEmpty()) {
-            System.out.println("No hay órdenes pendientes");
-        } else {
-            for (Orden orden : ordenesPendientes) {
-                orden.mostrarOrden();
-                System.out.println("===================");
-            }
-        }
-    }
     
     private static void verResumenOrdenesPendientes() {
     List<Orden> ordenesPendientes = sistema.getOrdenes().stream()
