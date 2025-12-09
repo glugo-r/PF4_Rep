@@ -3,16 +3,13 @@ import usuarios.*;
 
 import notificaciones.NotificadorTareas;
 import utilidades.EntradaUtils;
-
-
 import java.util.*;
-import java.text.SimpleDateFormat;
 
-public class Main {
+public class Main 
+{
     private static SistemaTareas sistema;
     private static Scanner scanner;
     private static NotificadorTareas notificador;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
     public static void main(String[] args) {
         sistema = new SistemaTareas();

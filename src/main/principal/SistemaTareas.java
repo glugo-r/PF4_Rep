@@ -6,6 +6,7 @@ import excepciones.*;
 import database.DatabaseManager;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
 
 public class SistemaTareas {
     private List<Usuario> usuarios;
@@ -137,8 +138,11 @@ public class SistemaTareas {
         guardarEstado();
     }
     
-    public void agregarTarea(Tarea tarea) {
+    public void agregarTarea(Tarea tarea) throws FechaInvalidaException 
+    {
+        validarFechaLimite(tarea.getFechaLimite());
         tareas.add(tarea);
+        DatabaseManager.guardarTareas(tareas); // Para persistir/guardar inmediatamente
     }
     
     public void asignarTarea(Tarea tarea, Empleado empleado) {
@@ -273,6 +277,27 @@ public class SistemaTareas {
             .filter(o -> o.getId() == id)
             .findFirst()
             .orElse(null);
+    }
+    
+    private void validarFechaLimite(String fechaLimite) throws FechaInvalidaException {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date fecha = sdf.parse(fechaLimite);
+            Date ahora = new Date();
+
+            long diferenciaMillis = fecha.getTime() - ahora.getTime();
+            long diferenciaHoras = diferenciaMillis / (1000 * 60 * 60);
+
+            if (diferenciaMillis <= 0) {
+                throw new FechaInvalidaException("La fecha límite no puede ser anterior a la actual.");
+            }
+
+            if (diferenciaHoras < 1) {
+                throw new FechaInvalidaException("Debe haber al menos una hora de anticipación.");
+            }
+        } catch (Exception e) {
+            throw new FechaInvalidaException("Formato de fecha inválido. Use yyyy-MM-dd HH:mm:ss");
+        }
     }
 
 }
