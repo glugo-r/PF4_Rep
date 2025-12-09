@@ -25,6 +25,14 @@ public class SistemaTareas {
         this.tareas = DatabaseManager.cargarTareas(usuarios);
         this.ventasDia = 0.0;
         
+        // Ajustar contador al máximo ID cargado
+        int maxId = tareas.stream()
+                          .mapToInt(Tarea::getId)
+                          .max()
+                          .orElse(0);
+        Tarea.setContadorId(maxId + 1);
+
+        
         inicializarDatos();
         cargarEstadisticasIniciales();
     }
