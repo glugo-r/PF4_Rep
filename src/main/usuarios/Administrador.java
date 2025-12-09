@@ -170,7 +170,7 @@ public class Administrador extends Usuario
 	    // Verificar que no sea administrador o sudo
 	    if (usuario instanceof Administrador || usuario instanceof Sudo) {
 	        System.out.println("No tiene permisos para eliminar administradores.");
-	        System.out.println("   Solo el Sudo puede eliminar administradores.");
+	        System.out.println("Solo el Sudo puede eliminar administradores.");
 	        return;
 	    }
 	    
@@ -300,8 +300,6 @@ public class Administrador extends Usuario
 	    } catch (FechaInvalidaException e) {
 	        System.out.println(" Error al crear tarea: " + e.getMessage());
 	    }
-
-	    System.out.println(" Tarea creada exitosamente");
 	}
     
     // Método para validar el formato de fecha
