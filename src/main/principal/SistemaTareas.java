@@ -6,6 +6,7 @@ import excepciones.*;
 import database.DatabaseManager;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class SistemaTareas {
@@ -279,24 +280,28 @@ public class SistemaTareas {
             .orElse(null);
     }
     
-    private void validarFechaLimite(String fechaLimite) throws FechaInvalidaException {
+    private void validarFechaLimite(String fechaLimite) throws FechaInvalidaException 
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setLenient(false); // evita aceptar fechas raras como 2025-13-99
+
+        Date fecha;
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            Date fecha = sdf.parse(fechaLimite);
-            Date ahora = new Date();
-
-            long diferenciaMillis = fecha.getTime() - ahora.getTime();
-            long diferenciaHoras = diferenciaMillis / (1000 * 60 * 60);
-
-            if (diferenciaMillis <= 0) {
-                throw new FechaInvalidaException("La fecha límite no puede ser anterior a la actual.");
-            }
-
-            if (diferenciaHoras < 1) {
-                throw new FechaInvalidaException("Debe haber al menos una hora de anticipación.");
-            }
-        } catch (Exception e) {
+            fecha = sdf.parse(fechaLimite);
+        } catch (ParseException e) {
             throw new FechaInvalidaException("Formato de fecha inválido. Use yyyy-MM-dd HH:mm");
+        }
+
+        Date ahora = new Date();
+        long diferenciaMillis = fecha.getTime() - ahora.getTime();
+        long diferenciaHoras = diferenciaMillis / (1000 * 60 * 60);
+
+        if (diferenciaMillis <= 0) {
+            throw new FechaInvalidaException("La fecha límite no puede ser anterior a la actual.");
+        }
+
+        if (diferenciaHoras < 1) {
+            throw new FechaInvalidaException("Debe haber al menos una hora de anticipación.");
         }
     }
 
