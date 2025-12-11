@@ -7,5 +7,5 @@ id,nombre,email,rol,password
 6,sam,sam@restaurante.com,Cocinero,sam123
 7,Kevin,kevin@restaurante.com,Administrador,Kev123
 8,gabriel,gabriel@restaurante.com,Administrador,gab123
-9,José SA,JSA@resto.com,Cocinero,JSA123
+9,José SA,jsa@resto.com,Cocinero,JSA123
 10,Luis,luis@resto.com,Mesero,Ls123
