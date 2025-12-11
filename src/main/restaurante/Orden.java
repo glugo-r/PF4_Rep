@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
+import java.text.DecimalFormat;
 
 public class Orden {
     private static int contadorId = 1;
@@ -30,8 +31,7 @@ public class Orden {
         // Verificar si ya existe este platillo en la orden
         for (ItemOrden item : items) {
             if (item.getPlatillo().getId() == platillo.getId()) {
-                // Podríamos incrementar la cantidad, pero por simplicidad
-                // agregamos como nuevo item por ahora
+                // agregamos como nuevo item
             }
         }
         items.add(new ItemOrden(platillo, cantidad));
@@ -46,10 +46,15 @@ public class Orden {
     public void marcarPlatilloListo(Platillo platillo) {
 	    for (ItemOrden item : items) {
 	        if (item.getPlatillo().getId() == platillo.getId() && !item.estaCompleto()) {
-	            item.marcarListo(); // Esto solo marca UNA unidad
+	            item.marcarListo(); // Esto solo marca una unidad
 	            return;
 	        }
 	    }
+    }
+    
+    public String getTotalFormateado() {
+        DecimalFormat formato = new DecimalFormat("$#,##0.00");
+        return formato.format(total);
     }
     
 	// Método para eliminar un platillo de la orden
@@ -231,7 +236,7 @@ public class Orden {
         }
         
         System.out.println("Total: $" + total);
-        System.out.println("Estado general: " + (estaLista() ? "✅ LISTA PARA ENTREGAR" : "🔄 EN PREPARACIÓN"));
+        System.out.println("Estado general: " + (estaLista() ? "LISTA PARA ENTREGAR" : " EN PREPARACIÓN"));
         System.out.println("Progreso: " + getCantidadPlatillosListos() + "/" + getTotalPlatillos() + " platillos listos");
     }
     
@@ -265,7 +270,7 @@ public class Orden {
                 }
                 System.out.println("  [ID Platillo: " + item.getPlatillo().getId() + "] " + 
                                  item.getPlatillo().getNombre() + 
-                                 " " + item.getCantidadLista() + "/" + item.getCantidad() + " ✅");
+                                 " " + item.getCantidadLista() + "/" + item.getCantidad() + " ");
             }
         }
     }
