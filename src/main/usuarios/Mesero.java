@@ -495,7 +495,7 @@ public class Mesero extends Empleado
             .orElse(null);
         
         if (platillo == null) {
-            System.out.println("❌ Platillo no encontrado.");
+            System.out.println(" Platillo no encontrado.");
             return;
         }
         
@@ -503,7 +503,7 @@ public class Mesero extends Empleado
         int cantidad = EntradaUtils.leerEntero(scanner);
         
         if (cantidad <= 0) {
-            System.out.println("❌ La cantidad debe ser mayor a 0.");
+            System.out.println(" La cantidad debe ser mayor a 0.");
             return;
         }
         

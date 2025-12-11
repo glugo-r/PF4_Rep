@@ -213,7 +213,7 @@ public class Sudo extends Usuario
             System.out.println("Mesero: " + orden.getMesero().getNombre());
             System.out.println("Fecha: " + orden.getFecha());
             System.out.println("Total: $" + orden.getTotal());
-            System.out.println("Estado: " + (orden.isEntregada() ? "✅ ENTREGADA" : "ACTIVA"));
+            System.out.println("Estado: " + (orden.isEntregada() ? " ENTREGADA" : "ACTIVA"));
             System.out.println("Lista: " + (orden.estaLista() ? "SÍ" : "NO"));
             System.out.println("-------------------");
         }
