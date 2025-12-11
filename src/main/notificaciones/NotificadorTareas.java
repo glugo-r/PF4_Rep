@@ -9,7 +9,7 @@ import java.util.Date;
 public class NotificadorTareas extends Thread {
     private List<Tarea> tareas;
     private boolean activo;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd H:mm");
     
     public NotificadorTareas(List<Tarea> tareas) {
         this.tareas = tareas;
@@ -30,19 +30,31 @@ public class NotificadorTareas extends Thread {
     
     private void verificarTareasPorVencer() {
         Date ahora = new Date();
-        
+
         for (Tarea tarea : tareas) {
             if (tarea.getEstado() != EstadoTarea.FINALIZADA) {
                 try {
                     Date fechaLimite = sdf.parse(tarea.getFechaLimite());
                     long diferencia = fechaLimite.getTime() - ahora.getTime();
+
+                    // Calcular horas y minutos restantes
                     long horasRestantes = diferencia / (60 * 60 * 1000);
-                    
-                    if (horasRestantes <= 2 && horasRestantes > 0) {
-                        System.out.println("⚠️ NOTIFICACIÓN: La tarea '" + tarea.getTitulo() + 
-                                         "' vence en " + horasRestantes + " horas");
+                    long minutosRestantes = (diferencia / (60 * 1000)) % 60;
+
+                    // Formatear fecha límite para mostrarla en notificación
+                    String fechaCaducidad = sdf.format(fechaLimite);
+
+                    if (diferencia > 0 && horasRestantes <= 2) {
+                        tarea.getUsuarioAsignado().agregarNotificacion(
+                            "La tarea '" + tarea.getTitulo() + "' vence en " +
+                            horasRestantes + " horas y " + minutosRestantes +
+                            " minutos (fecha límite: " + fechaCaducidad + ")"
+                        );
                     } else if (diferencia < 0) {
-                        System.out.println("❌ ALERTA: La tarea '" + tarea.getTitulo() + "' está VENCIDA!");
+                        tarea.getUsuarioAsignado().agregarNotificacion(
+                            "La tarea '" + tarea.getTitulo() + "' está VENCIDA! " +
+                            "(fecha límite era: " + fechaCaducidad + ")"
+                        );
                         tarea.cambiarEstado(EstadoTarea.VENCIDA);
                     }
                 } catch (Exception e) {

@@ -1,6 +1,7 @@
 package usuarios;
 
-public abstract class Usuario {
+public abstract class Usuario 
+{
     protected static int contadorId = 1;
     protected int id;
     protected String nombre;
@@ -11,7 +12,7 @@ public abstract class Usuario {
     public Usuario(String nombre, String email, String rol, String password) {
         this.id = contadorId++;
         this.nombre = nombre;
-        this.email = email;
+        this.email = email.trim().toLowerCase(); // Se eliminan espacios sobrantes y se pasa a minúsculas
         this.rol = rol;
         this.password = password;
     }
@@ -51,4 +52,7 @@ public abstract class Usuario {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }
+    
+    public abstract boolean mostrarMenu();
+
 }

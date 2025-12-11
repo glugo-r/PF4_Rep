@@ -1,13 +1,15 @@
 package database;
 
 import usuarios.*;
+import tareas.EstadoTarea;
 import tareas.Tarea;
 import restaurante.*;
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
-public class DatabaseManager {
+public class DatabaseManager 
+{
     private static final String USUARIOS_FILE = "data/usuarios.csv";
     private static final String TAREAS_FILE = "data/tareas.csv";
     private static final String PLATILLOS_FILE = "data/platillos.csv";
@@ -15,7 +17,7 @@ public class DatabaseManager {
     private static final String ORDENES_FILE = "data/ordenes.csv";
     private static final String MESAS_FILE = "data/mesas.csv";
     private static final String ESTADISTICAS_FILE = "data/estadisticas.csv";
-    
+        
     // Formato de fecha para las órdenes
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
@@ -41,7 +43,7 @@ public class DatabaseManager {
         
         if (!file.exists()) {
             // Crear Sudo por defecto
-            usuarios.add(new Sudo());
+            usuarios.add(new Sudo(null, null));
             guardarUsuarios(usuarios);
             return usuarios;
         }
@@ -60,16 +62,16 @@ public class DatabaseManager {
                 if (datos.length >= 5) {
                     switch (datos[3]) {
                         case "Sudo":
-                            usuarios.add(new Sudo());
+                            usuarios.add(new Sudo(null, null));
                             break;
                         case "Administrador":
-                            usuarios.add(new Administrador(datos[1], datos[2], datos[4]));
+                            usuarios.add(new Administrador(datos[1], datos[2], datos[4], null, null));
                             break;
                         case "Cocinero":
-                            usuarios.add(new Cocinero(datos[1], datos[2], datos[4]));
+                            usuarios.add(new Cocinero(datos[1], datos[2], datos[4], null, null));
                             break;
                         case "Mesero":
-                            usuarios.add(new Mesero(datos[1], datos[2], datos[4]));
+                            usuarios.add(new Mesero(datos[1], datos[2], datos[4], null, null));
                             break;
                     }
                 }
@@ -425,4 +427,73 @@ public class DatabaseManager {
         
         return total;
     }
+    
+    // ========== TAREAS ==========
+    public static void guardarTareas(List<Tarea> tareas) 
+    {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(TAREAS_FILE))) {
+            writer.println("id,titulo,descripcion,fechaLimite,estado,usuarioAsignadoId");
+            for (Tarea tarea : tareas) {
+                int usuarioId = (tarea.getUsuarioAsignado() != null) ? tarea.getUsuarioAsignado().getId() : -1;
+                writer.println(tarea.getId() + "," +
+                               tarea.getTitulo() + "," +
+                               tarea.getDescripcion() + "," +
+                               tarea.getFechaLimite() + "," +
+                               tarea.getEstado() + "," +
+                               usuarioId);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar tareas: " + e.getMessage());
+        }
+    }
+
+    public static List<Tarea> cargarTareas(List<Usuario> usuarios) {
+        List<Tarea> tareas = new ArrayList<>();
+        File file = new File(TAREAS_FILE);
+
+        if (!file.exists()) {
+            return tareas; // No hay tareas aún
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(TAREAS_FILE))) {
+            String line;
+            boolean firstLine = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false;
+                    continue; // Saltar encabezado
+                }
+
+                String[] datos = line.split(",");
+                if (datos.length >= 6) {
+                    int id = Integer.parseInt(datos[0]);
+                    String titulo = datos[1];
+                    String descripcion = datos[2];
+                    String fechaLimite = datos[3];
+                    EstadoTarea estado = EstadoTarea.valueOf(datos[4]);
+                    int usuarioId = Integer.parseInt(datos[5]);
+
+                    // Usar el nuevo constructor
+                    Tarea tarea = new Tarea(id, titulo, descripcion, fechaLimite, estado);
+
+                    // Vincular usuario asignado si existe
+                    Usuario asignado = usuarios.stream()
+                                               .filter(u -> u.getId() == usuarioId)
+                                               .findFirst()
+                                               .orElse(null);
+                    if (asignado instanceof Empleado) {
+                        tarea.setUsuarioAsignado((Empleado) asignado);
+                    }
+
+                    tareas.add(tarea);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al cargar tareas: " + e.getMessage());
+        }
+
+        return tareas;
+    }
+    
 }
