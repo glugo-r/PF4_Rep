@@ -115,9 +115,12 @@ public class SistemaTareas {
         DatabaseManager.registrarVenta(monto, "Venta registrada");
     }
     
-    public Usuario autenticarUsuario(String email, String password) {
+ // Método para autenticar un usuario
+    public Usuario autenticarUsuario(String email, String password) 
+    {
+        String emailNormalizado = email.trim().toLowerCase(); // Se pasa el email a minúculas
         return usuarios.stream()
-            .filter(u -> u.getEmail().equals(email) && u.verificarPassword(password))
+            .filter(u -> u.getEmail().equals(emailNormalizado) && u.verificarPassword(password))
             .findFirst()
             .orElse(null);
     }
@@ -304,4 +307,13 @@ public class SistemaTareas {
         }
     }
 
+    public void reconstruirAsignaciones() 
+    {
+        for (Tarea tarea : tareas) 
+        {
+            Usuario asignado = tarea.getUsuarioAsignado();
+            if (asignado instanceof Empleado)
+                ((Empleado) asignado).agregarTarea(tarea);
+        }
+    }
 }

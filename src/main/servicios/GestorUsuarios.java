@@ -56,7 +56,8 @@ public class GestorUsuarios
         while (true) 
         {
             System.out.print("Email (debe terminar en .com): ");
-            email = scanner.nextLine();
+            email = scanner.nextLine().trim().toLowerCase(); // Convertir todo a minúsculas
+
             try {
                 sistema.validarEmail(email);
                 break;
