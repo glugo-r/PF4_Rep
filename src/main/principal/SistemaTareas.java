@@ -115,7 +115,7 @@ public class SistemaTareas {
         DatabaseManager.registrarVenta(monto, "Venta registrada");
     }
     
- // Método para autenticar un usuario
+    // Método para autenticar un usuario
     public Usuario autenticarUsuario(String email, String password) 
     {
         String emailNormalizado = email.trim().toLowerCase(); // Se pasa el email a minúculas

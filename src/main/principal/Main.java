@@ -2,6 +2,7 @@ package principal;
 import usuarios.*;
 
 import notificaciones.NotificadorTareas;
+import notificaciones.NotificadorEnTiempoReal;
 import utilidades.EntradaUtils;
 import java.util.*;
 
@@ -82,17 +83,35 @@ public class Main
     private static void iniciarSesion() {
         System.out.print("Ingrese email: ");
         String email = scanner.nextLine();
-        
+
         System.out.print("Ingrese contraseña: ");
         String password = scanner.nextLine();
-        
+
         // Autenticar usuario
         Usuario usuario = sistema.autenticarUsuario(email, password);
-        
+
         if (usuario != null) {
             sistema.setUsuarioActual(usuario);
             System.out.println("¡Bienvenido, " + usuario.getNombre() + "!");
+
+            // Si es empleado, arrancar hilo de notificaciones en tiempo real
+            NotificadorEnTiempoReal notificador = null;
+            Thread hiloNotificaciones = null;
+            if (usuario instanceof Empleado) {
+                Empleado empleado = (Empleado) usuario;
+                notificador = new NotificadorEnTiempoReal(empleado);
+                hiloNotificaciones = new Thread(notificador);
+                hiloNotificaciones.start();
+            }
+
+            // Mostrar menú según rol
             mostrarMenuSegunRol();
+
+            // Al salir del menú, detener el hilo
+            if (notificador != null) {
+                notificador.detener();
+            }
+
         } else {
             System.out.println("Credenciales incorrectas. Intente nuevamente.");
         }
