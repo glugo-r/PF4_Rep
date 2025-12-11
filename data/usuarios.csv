@@ -9,3 +9,4 @@ id,nombre,email,rol,password
 8,gabriel,gabriel@restaurante.com,Administrador,gab123
 9,José SA,jsa@resto.com,Cocinero,JSA123
 10,Luis,luis@resto.com,Mesero,Ls123
+11,Cocinero Uno,cocinero@resto.com,Cocinero,COCINERO123

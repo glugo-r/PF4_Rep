@@ -3,7 +3,8 @@ id,titulo,descripcion,fechaLimite,estado,usuarioAsignadoId
 3,Tarea Pueba 4,Verificación de que la Tarea Prueba 4 no sobreescriba el ID de Tarea Prueba 3,2700-12-31 18:30,PENDIENTE,6
 5,x,y,2025-12-31 18:40,PENDIENTE,-1
 9,z,y,2025-12-09 23:50,VENCIDA,9
-11,Tarea Prueba para Expo 1,Esta tarea es de ejemplo para la presentación del proyecto,2025-12-11 12:30,PENDIENTE,4
-12,Tarea para Expo 2,Esta tarea es de ejemplo para la presentación del proyecto,2025-12-11 13:00,PENDIENTE,5
+11,Tarea Prueba para Expo 1,Esta tarea es de ejemplo para la presentación del proyecto,2025-12-11 12:30,VENCIDA,4
+12,Tarea para Expo 2,Esta tarea es de ejemplo para la presentación del proyecto,2025-12-11 13:00,VENCIDA,5
 13,Tarea para expo 3,Esta tarea es de ejemplo para la presentación del proyecto,2025-12-31 13:30,PENDIENTE,6
 16,Tarea Prueba Notificaciones,Con esta tarea se busca verificar que las notificacione sindividuales funcionen,2025-12-11 2:19,PENDIENTE,-1
+18,Tarea,F,2025-12-11 14:00,FINALIZADA,10

@@ -126,15 +126,12 @@ public class Mesero extends Empleado
 	            scanner.nextLine();
 	            return false;
 	        case 9:
-	            mostrarTareasPendientes();
-	            System.out.print("Ingrese el título de la tarea a completar: ");
-	            String titulo = scanner.nextLine();
-	            Tarea tarea = buscarTareaPorTitulo(titulo);
-	            if (tarea != null) {
-	                completarTarea(tarea);
-	            } else {
-	                System.out.println(" No se encontró la tarea con ese título.");
-	            }
+	        	mostrarTareasPendientes(); // aquí conviene mostrar también el ID de cada tarea
+	            System.out.print("Ingrese el ID de la tarea a completar: ");
+	            int id = EntradaUtils.leerEntero(scanner);
+	            completarTareaPorId(id);
+	            System.out.println("\nPresione Enter para continuar...");
+	            scanner.nextLine();
 	            return false;
 	        case 10:
 	            sistema.setUsuarioActual(null);

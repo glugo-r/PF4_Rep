@@ -80,18 +80,28 @@ public abstract class Empleado extends Usuario {
         System.out.println("=== TAREAS PENDIENTES ===");
         for (Tarea t : tareasAsignadas) {
             if (t.getEstado() != EstadoTarea.FINALIZADA) {
-                System.out.println(" - " + t.getTitulo() + " (Estado: " + t.getEstado() + ")");
+                System.out.println("ID: " + t.getId() + " | " + t.getTitulo() + " (Estado: " + t.getEstado() + ")");
             }
         }
     }
-    
-    public Tarea buscarTareaPorTitulo(String titulo) {
+
+    public Tarea buscarTareaPorId(int id) {
         for (Tarea t : tareasAsignadas) {
-            if (t.getTitulo().equalsIgnoreCase(titulo)) {
+            if (t.getId() == id) {   //  comparación por ID único
                 return t;
             }
         }
         return null;
+    }
+
+    public void completarTareaPorId(int id) {
+        Tarea tarea = buscarTareaPorId(id);
+        if (tarea != null) {
+            tarea.cambiarEstado(EstadoTarea.FINALIZADA);
+            System.out.println("La tarea '" + tarea.getTitulo() + "' (ID: " + tarea.getId() + ") ha sido completada.");
+        } else {
+            System.out.println("No se encontró la tarea con ese ID.");
+        }
     }
 
 }
