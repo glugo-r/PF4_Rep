@@ -80,7 +80,8 @@ public class Main
         }
     }
     
-    private static void iniciarSesion() {
+    private static void iniciarSesion() 
+    {
         System.out.print("Ingrese email: ");
         String email = scanner.nextLine();
 
@@ -104,12 +105,13 @@ public class Main
                 hiloNotificaciones.start();
             }
 
-            // Mostrar menú según rol
+            // Mostrar menú según rol (bloquea hasta que el usuario cierre sesión)
             mostrarMenuSegunRol();
 
-            // Al salir del menú, detener el hilo
-            if (notificador != null) {
-                notificador.detener();
+            // Al salir del menú, detener el hilo y romper el sleep
+            if (notificador != null && hiloNotificaciones != null) {
+                notificador.detener();          // marca activo = false
+                hiloNotificaciones.interrupt(); // rompe el sleep inmediatamente
             }
 
         } else {

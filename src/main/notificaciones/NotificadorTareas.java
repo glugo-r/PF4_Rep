@@ -30,21 +30,30 @@ public class NotificadorTareas extends Thread {
     
     private void verificarTareasPorVencer() {
         Date ahora = new Date();
-        
+
         for (Tarea tarea : tareas) {
             if (tarea.getEstado() != EstadoTarea.FINALIZADA) {
                 try {
                     Date fechaLimite = sdf.parse(tarea.getFechaLimite());
                     long diferencia = fechaLimite.getTime() - ahora.getTime();
+
+                    // Calcular horas y minutos restantes
                     long horasRestantes = diferencia / (60 * 60 * 1000);
-                    
-                    if (horasRestantes <= 2 && horasRestantes > 0) {
+                    long minutosRestantes = (diferencia / (60 * 1000)) % 60;
+
+                    // Formatear fecha límite para mostrarla en notificación
+                    String fechaCaducidad = sdf.format(fechaLimite);
+
+                    if (diferencia > 0 && horasRestantes <= 2) {
                         tarea.getUsuarioAsignado().agregarNotificacion(
-                            "La tarea '" + tarea.getTitulo() + "' vence en " + horasRestantes + " horas"
+                            "La tarea '" + tarea.getTitulo() + "' vence en " +
+                            horasRestantes + " horas y " + minutosRestantes +
+                            " minutos (fecha límite: " + fechaCaducidad + ")"
                         );
                     } else if (diferencia < 0) {
                         tarea.getUsuarioAsignado().agregarNotificacion(
-                            "La tarea '" + tarea.getTitulo() + "' está VENCIDA!"
+                            "La tarea '" + tarea.getTitulo() + "' está VENCIDA! " +
+                            "(fecha límite era: " + fechaCaducidad + ")"
                         );
                         tarea.cambiarEstado(EstadoTarea.VENCIDA);
                     }
