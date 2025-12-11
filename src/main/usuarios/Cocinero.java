@@ -62,7 +62,9 @@ public class Cocinero extends Empleado
         this.platillosPreparados = cantidad;
     }
     
-    public boolean mostrarMenu() {
+    public boolean mostrarMenu() 
+    {
+    	mostrarNotificacionesPendientes();
         System.out.println("\n=== MENÚ COCINERO ===");
         System.out.println("Bienvenido, " + this.getNombre());
         System.out.println("Platillos preparados hoy: " + this.getPlatillosPreparados());
