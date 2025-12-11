@@ -1,3 +1,4 @@
+package principal;
 import usuarios.*;
 import tareas.*;
 import restaurante.*;
@@ -5,6 +6,8 @@ import excepciones.*;
 import database.DatabaseManager;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class SistemaTareas {
     private List<Usuario> usuarios;
@@ -21,8 +24,16 @@ public class SistemaTareas {
         this.platillos = DatabaseManager.cargarPlatillos();
         this.usuarios = DatabaseManager.cargarUsuarios();
         this.ordenes = DatabaseManager.cargarOrdenes(mesas, usuarios, platillos);
-        this.tareas = new ArrayList<>();
+        this.tareas = DatabaseManager.cargarTareas(usuarios);
         this.ventasDia = 0.0;
+        
+        // Ajustar contador al máximo ID cargado
+        int maxId = tareas.stream()
+                          .mapToInt(Tarea::getId)
+                          .max()
+                          .orElse(0);
+        Tarea.setContadorId(maxId + 1);
+
         
         inicializarDatos();
         cargarEstadisticasIniciales();
@@ -82,8 +93,9 @@ public class SistemaTareas {
         DatabaseManager.guardarPlatillos(platillos);
         DatabaseManager.guardarMesas(mesas);
         DatabaseManager.guardarOrdenes(ordenes);
+        DatabaseManager.guardarTareas(tareas);
         
-        System.out.println("✅ Estado del sistema guardado exitosamente.");
+        System.out.println("Estado del sistema guardado exitosamente.");
     }
     
     // Método para agregar orden y guardar
@@ -103,7 +115,6 @@ public class SistemaTareas {
         DatabaseManager.registrarVenta(monto, "Venta registrada");
     }
     
-    // Resto de los métodos existentes...
     public Usuario autenticarUsuario(String email, String password) {
         return usuarios.stream()
             .filter(u -> u.getEmail().equals(email) && u.verificarPassword(password))
@@ -127,8 +138,11 @@ public class SistemaTareas {
         guardarEstado();
     }
     
-    public void agregarTarea(Tarea tarea) {
+    public void agregarTarea(Tarea tarea) throws FechaInvalidaException 
+    {
+        validarFechaLimite(tarea.getFechaLimite());
         tareas.add(tarea);
+        DatabaseManager.guardarTareas(tareas); // Para persistir/guardar inmediatamente
     }
     
     public void asignarTarea(Tarea tarea, Empleado empleado) {
@@ -191,16 +205,16 @@ public class SistemaTareas {
             .orElse(null);
     }
     
-    private void validarEmail(String email) throws EmailInvalidoException {
-        if (!email.contains("@") || !email.endsWith(".com")) {
-            throw new EmailInvalidoException("El email debe contener @ y terminar en .com");
-        }
+    public void validarNombre(String nombre) throws NombreInvalidoException 
+    {
+        if (nombre == null || !nombre.matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]{3,}$"))
+            throw new NombreInvalidoException("El nombre debe tener al menos 3 letras y solo contener caracteres válidos.");
     }
-    
-    private void validarNombre(String nombre) throws NombreInvalidoException {
-        if (nombre == null || nombre.trim().length() < 3) {
-            throw new NombreInvalidoException("El nombre debe tener al menos 3 letras");
-        }
+
+    public void validarEmail(String email) throws EmailInvalidoException 
+    {
+        if (email == null || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"))
+            throw new EmailInvalidoException("El email debe contener '@', terminar en '.com' y ser válido.");
     }
     
     // Getters
@@ -215,39 +229,38 @@ public class SistemaTareas {
     // Setters
     public void setUsuarioActual(Usuario usuarioActual) { this.usuarioActual = usuarioActual; }
     
- // En SistemaTareas.java, agrega este método:
 
     public boolean eliminarOrden(int idOrden) {
         Orden orden = buscarOrdenPorId(idOrden);
         
         if (orden == null) {
-            System.out.println("❌ Orden no encontrada.");
+            System.out.println(" Orden no encontrada.");
             return false;
         }
         
         // Verificar si la orden ya fue entregada
         if (orden.isEntregada()) {
-            System.out.println("⚠️  No se puede eliminar una orden ya entregada.");
-            System.out.println("   Si necesita anular una venta, use el sistema de contabilidad.");
+            System.out.println(" No se puede eliminar una orden ya entregada.");
+            System.out.println(" Si necesita anular una venta, use el sistema de contabilidad.");
             return false;
         }
         
         // Liberar la mesa si está ocupada
         if (orden.getMesa().isOcupada()) {
             orden.getMesa().setOcupada(false);
-            System.out.println("✅ Mesa " + orden.getMesa().getNumero() + " liberada.");
+            System.out.println(" Mesa " + orden.getMesa().getNumero() + " liberada.");
         }
         
         // Remover la orden de la lista
         boolean eliminada = ordenes.removeIf(o -> o.getId() == idOrden);
         
         if (eliminada) {
-            System.out.println("✅ Orden #" + idOrden + " eliminada exitosamente.");
+            System.out.println(" Orden #" + idOrden + " eliminada exitosamente.");
             
             // Ajustar ventas del día si la orden era del día de hoy
             if (esOrdenDeHoy(orden)) {
                 ventasDia -= orden.getTotal();
-                System.out.println("⚠️  Se descontó $" + orden.getTotal() + " de las ventas del día.");
+                System.out.println(" Se descontó $" + orden.getTotal() + " de las ventas del día.");
             }
             
             // Guardar cambios
@@ -264,6 +277,31 @@ public class SistemaTareas {
             .filter(o -> o.getId() == id)
             .findFirst()
             .orElse(null);
+    }
+    
+    private void validarFechaLimite(String fechaLimite) throws FechaInvalidaException 
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setLenient(false); // evita aceptar fechas raras como 2025-13-99
+
+        Date fecha;
+        try {
+            fecha = sdf.parse(fechaLimite);
+        } catch (ParseException e) {
+            throw new FechaInvalidaException("Formato de fecha inválido. Use yyyy-MM-dd HH:mm");
+        }
+
+        Date ahora = new Date();
+        long diferenciaMillis = fecha.getTime() - ahora.getTime();
+        long diferenciaHoras = diferenciaMillis / (1000 * 60 * 60);
+
+        if (diferenciaMillis <= 0) {
+            throw new FechaInvalidaException("La fecha límite no puede ser anterior a la actual.");
+        }
+
+        if (diferenciaHoras < 1) {
+            throw new FechaInvalidaException("Debe haber al menos una hora de anticipación.");
+        }
     }
 
 }

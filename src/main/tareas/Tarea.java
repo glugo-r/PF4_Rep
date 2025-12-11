@@ -11,12 +11,31 @@ public class Tarea {
     private EstadoTarea estado;
     private Empleado usuarioAsignado;
     
+    // Constructor normal (para nuevas tareas)
     public Tarea(String titulo, String descripcion, String fechaLimite) {
         this.id = contadorId++;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.fechaLimite = fechaLimite;
         this.estado = EstadoTarea.PENDIENTE;
+    }
+    
+    // Constructor adicional (para reconstrucción desde CSV)
+    public Tarea(int id, String titulo, String descripcion, String fechaLimite, EstadoTarea estado) {
+        this.id = id;
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.fechaLimite = fechaLimite;
+        this.estado = estado;
+    }
+    
+    // Métodos para manejar el contador
+    public static int getContadorId() {
+        return contadorId;
+    }
+
+    public static void setContadorId(int nuevoValor) {
+        contadorId = nuevoValor;
     }
     
     public void cambiarEstado(EstadoTarea nuevoEstado) {

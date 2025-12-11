@@ -51,4 +51,7 @@ public abstract class Usuario {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }
+    
+    public abstract boolean mostrarMenu();
+
 }

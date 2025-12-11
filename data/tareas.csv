@@ -1,0 +1,6 @@
+id,titulo,descripcion,fechaLimite,estado,usuarioAsignadoId
+2,Tarea de prueba 3,Verficación que las tareas se creen con distintos ID's,2030-12-31 18:30,PENDIENTE,4
+3,Tarea Pueba 4,Verificación de que la Tarea Prueba 4 no sobreescriba el ID de Tarea Prueba 3,2700-12-31 18:30,PENDIENTE,6
+5,x,y,2025-12-31 18:40,PENDIENTE,-1
+9,z,y,2025-12-09 23:50,VENCIDA,-1
+12,a,a,2025-12-31 22:40,PENDIENTE,-1
