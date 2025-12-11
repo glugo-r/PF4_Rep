@@ -9,7 +9,7 @@ import java.util.Date;
 public class NotificadorTareas extends Thread {
     private List<Tarea> tareas;
     private boolean activo;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd H:mm");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
     public NotificadorTareas(List<Tarea> tareas) {
         this.tareas = tareas;
@@ -39,13 +39,10 @@ public class NotificadorTareas extends Thread {
                     long horasRestantes = diferencia / (60 * 60 * 1000);
                     
                     if (horasRestantes <= 2 && horasRestantes > 0) {
-                        tarea.getUsuarioAsignado().agregarNotificacion(
-                            "La tarea '" + tarea.getTitulo() + "' vence en " + horasRestantes + " horas"
-                        );
+                        System.out.println("⚠️ NOTIFICACIÓN: La tarea '" + tarea.getTitulo() + 
+                                         "' vence en " + horasRestantes + " horas");
                     } else if (diferencia < 0) {
-                        tarea.getUsuarioAsignado().agregarNotificacion(
-                            "La tarea '" + tarea.getTitulo() + "' está VENCIDA!"
-                        );
+                        System.out.println("❌ ALERTA: La tarea '" + tarea.getTitulo() + "' está VENCIDA!");
                         tarea.cambiarEstado(EstadoTarea.VENCIDA);
                     }
                 } catch (Exception e) {

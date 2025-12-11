@@ -36,8 +36,6 @@ public class Main
         notificador = new NotificadorTareas(sistema.getTareas());
         notificador.start();
         
-        sistema.reconstruirAsignaciones(); // Para reconstruir las tareas asignadas a cada empleado
-        
         // Agregar shutdown hook para guardar automáticamente
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\n Guardando estado del sistema...");
@@ -103,6 +101,7 @@ public class Main
         boolean cerrarSesion = false;
         
         while (!cerrarSesion) {
+            System.out.println("\n=== MENÚ DE " + usuario.getRol().toUpperCase() + " ===");
             
             if (usuario instanceof Sudo)
                 cerrarSesion = ((Sudo) usuario).mostrarMenu();
@@ -117,6 +116,6 @@ public class Main
                 cerrarSesion = true;
             }
         }
-    }
+    }    
     
 }

@@ -33,35 +33,4 @@ public abstract class Empleado extends Usuario {
     public List<Tarea> getTareasAsignadas() {
         return tareasAsignadas;
     }
-    
-    
-    // Métodos de notificaciones
-    private List<String> notificaciones = new ArrayList<>();
-
-    public void agregarNotificacion(String mensaje) 
-    {
-        notificaciones.add(mensaje);
-    }
-
-    public List<String> getNotificaciones() 
-    {
-        return notificaciones;
-    }
-
-    public void eliminarNotificacionesDeTarea(String tituloTarea) 
-    {
-        notificaciones.removeIf(n -> n.contains("'" + tituloTarea + "'"));
-    }
-
-    public void mostrarNotificacionesPendientes() 
-    {
-        if (!notificaciones.isEmpty()) 
-        {
-            System.out.println("\n=== NOTIFICACIONES ===");
-            for (String n : notificaciones)
-                System.out.println(" " + n);
-        }
-    }
-
-    
 }
