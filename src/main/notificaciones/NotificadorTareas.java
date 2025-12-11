@@ -39,10 +39,10 @@ public class NotificadorTareas extends Thread {
                     long horasRestantes = diferencia / (60 * 60 * 1000);
                     
                     if (horasRestantes <= 2 && horasRestantes > 0) {
-                        System.out.println("NOTIFICACIÓN: La tarea '" + tarea.getTitulo() + 
+                        System.out.println("⚠️ NOTIFICACIÓN: La tarea '" + tarea.getTitulo() + 
                                          "' vence en " + horasRestantes + " horas");
                     } else if (diferencia < 0) {
-                        System.out.println("ALERTA: La tarea '" + tarea.getTitulo() + "' está VENCIDA!");
+                        System.out.println("❌ ALERTA: La tarea '" + tarea.getTitulo() + "' está VENCIDA!");
                         tarea.cambiarEstado(EstadoTarea.VENCIDA);
                     }
                 } catch (Exception e) {

@@ -284,7 +284,7 @@ public class Mesero extends Empleado
 	    sistema.agregarOrden(orden); // Usar este método en lugar de add directo
 	    System.out.println("\n Pedido registrado exitosamente");
 	    System.out.println("Orden #" + orden.getId());
-	    System.out.println("Total: $" + orden.getTotal());
+	    System.out.println("Total: $" + orden.getTotalFormateado());
 	    sistema.agregarVenta(orden.getTotal());
 	    
 	    // Mostrar resumen de la orden
@@ -404,7 +404,7 @@ public class Mesero extends Empleado
 	        System.out.println("\n[Orden #" + orden.getId() + "]");
 	        System.out.println("Mesa: " + orden.getMesa().getNumero());
 	        System.out.println("Estado: " + (orden.estaLista() ? "LISTA" : "EN PREPARACIÓN"));
-	        System.out.println("Total: $" + orden.getTotal());
+	        System.out.println("Total: $" + orden.getTotalFormateado());
 	    }
 	    
 	    System.out.print("\nID de la orden a modificar (0 para cancelar): ");

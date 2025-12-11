@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
+import java.text.DecimalFormat;
 
 public class Orden {
     private static int contadorId = 1;
@@ -49,6 +50,11 @@ public class Orden {
 	            return;
 	        }
 	    }
+    }
+    
+    public String getTotalFormateado() {
+        DecimalFormat formato = new DecimalFormat("$#,##0.00");
+        return formato.format(total);
     }
     
 	// Método para eliminar un platillo de la orden
