@@ -67,6 +67,7 @@ public class Mesero extends Empleado
     
     public boolean mostrarMenu() 
     {
+    	mostrarNotificacionesPendientes();
 	    System.out.println("\n=== MENÚ MESERO ===");
 	    System.out.println("Bienvenido, " + this.getNombre());
 	    System.out.println("1. Tomar pedido");
