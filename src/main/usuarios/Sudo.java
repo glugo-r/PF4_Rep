@@ -67,7 +67,7 @@ public class Sudo extends Usuario
 	            scanner.nextLine();
 	            return false;
 	        case 3:
-	            System.out.println("Ventas del día: $" + sistema.getVentasDia());
+	            System.out.println("Ventas del día: $" + String.format("%.2f", sistema.getVentasDia()));
 	            System.out.println("\nPresione Enter para continuar...");
 	            scanner.nextLine();
 	            return false;
